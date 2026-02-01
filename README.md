@@ -95,7 +95,6 @@ REDIS_URL=redis://localhost:6379
 # Auth & security
 JWT_SECRET=replace-with-long-random
 JWT_EXPIRES_IN=7d
-WEBHOOK_SECRET=replace-with-long-random
 API_KEY_HASH_SALT=replace-with-long-random
 JOB_ENC_KEY=replace-with-32+chars
 INGEST_TTL_SECONDS=3600
@@ -133,11 +132,11 @@ Authentication options:
 - Bearer JWT (owner user): Authorization: Bearer <JWT>
 - Bearer API key (tenant scope): Authorization: Bearer <API_KEY>
 
-Create a dataset
+Create a context schema
 ```bash
-curl -X POST http://localhost:4000/v1/datasets \
+curl -X POST http://localhost:4000/v1/contexts \
   -H 'Authorization: Bearer <TOKEN>' -H 'Content-Type: application/json' \
-  -d '{"name":"customers","schema":{"fields":[{"name":"age","type":"u8"}]}}'
+  -d '{"name":"game-context","schema":{"type":"object","properties":{"playerHash":{"type":"string"},"gameState":{"type":"object"}},"required":["playerHash"]}}'
 ```
 
 Explore blocks and templates
@@ -171,26 +170,12 @@ Create a run plan
 ```bash
 curl -X POST http://localhost:4000/v1/jobs \
   -H 'Authorization: Bearer <TOKEN>' -H 'Content-Type: application/json' \
-  -d '{"operation":"OPERATION_ID","execution_mode":"per"}'
-```
-
-```bash
-curl -X POST http://localhost:4000/v1/jobs \
-  -H 'Authorization: Bearer <TOKEN>' -H 'Content-Type: application/json' \
-  -H "Idempotency-Key: $(uuidgen)" \
-  -d '{"dataset_id":"DATASET_ID","operation":"OPERATION_ID","encrypted_inputs":{...}}'
+  -d '{"operation":"OPERATION_ID","execution_mode":"per","context":{"playerHash":"hex:...","gameState":{"score":12}}}'
 ```
 
 Check job status
 ```bash
 curl -H 'Authorization: Bearer <TOKEN>' http://localhost:4000/v1/jobs/JOB_ID
-```
-
-Verify attestation
-```bash
-curl -X POST http://localhost:4000/v1/attestations/verify \
-  -H 'Authorization: Bearer <TOKEN>' -H 'Content-Type: application/json' \
-  -d '{"jobId":"JOB_ID"}'
 ```
 
 Credits (simple wallet)
@@ -236,4 +221,4 @@ Client (`flaek-client`):
 ---
 
 ## What this gives you
-Use Flaek to prototype and ship privacy‑preserving features fast: “calculate a credit score without seeing income,” “price a quote without revealing raw inputs,” or “tally a vote without exposing ballots.” You design a pipeline like you’d describe it to a teammate—inputs, a few blocks, an output—and the system handles encryption, queuing, execution, and attestations for you.
+Use Flaek to prototype and ship privacy‑preserving features fast: “calculate a credit score without seeing income,” “price a quote without revealing raw inputs,” or “tally a vote without exposing ballots.” You design a pipeline like you’d describe it to a teammate—inputs, a few blocks, an output—and the system handles encryption, queuing, execution, and logging for you.

@@ -72,7 +72,7 @@ function buildSdkSnippet(operationId: string, context: Record<string, any>) {
     "import { createFlaekClient } from '@flaek/magicblock';",
     '',
     'const flaek = createFlaekClient({',
-    "  baseUrl: 'https://api.flaek.com',",
+    "  baseUrl: 'https://api.flaek.dev',",
     "  authToken: '<API_KEY_OR_JWT>',",
     '});',
     '',
@@ -88,7 +88,7 @@ function buildSdkSnippet(operationId: string, context: Record<string, any>) {
 function buildApiSnippet(operationId: string, context: Record<string, any>) {
   const contextBlock = JSON.stringify(context, null, 2);
   return [
-    'curl -X POST https://api.flaek.com/v1/jobs \\',
+    'curl -X POST https://api.flaek.dev/v1/jobs \\',
     "  -H 'Authorization: Bearer <API_KEY_OR_JWT>' \\",
     "  -H 'Content-Type: application/json' \\",
     `  -d '${JSON.stringify({ operation: operationId, execution_mode: 'per', context }).replace(/'/g, "\\'")}'`,

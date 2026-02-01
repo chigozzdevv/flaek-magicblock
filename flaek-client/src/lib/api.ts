@@ -125,9 +125,9 @@ export async function apiTotpDisable(code: string) {
   return { ok: true }
 }
 
-// Datasets
-export async function apiGetDatasets() {
-  return request('/v1/datasets') as Promise<{
+// Contexts
+export async function apiGetContexts() {
+  return request('/v1/contexts') as Promise<{
     items: Array<{
       dataset_id: string
       name: string
@@ -140,8 +140,8 @@ export async function apiGetDatasets() {
   }>
 }
 
-export async function apiGetDataset(id: string) {
-  return request(`/v1/datasets/${id}`) as Promise<{
+export async function apiGetContext(id: string) {
+  return request(`/v1/contexts/${id}`) as Promise<{
     dataset_id: string
     name: string
     schema: any
@@ -152,18 +152,17 @@ export async function apiGetDataset(id: string) {
   }>
 }
 
-export async function apiCreateDataset(input: { name: string; schema: any }) {
-  return request('/v1/datasets', { method: 'POST', body: JSON.stringify(input) }) as Promise<{
-    dataset_id: string
-  }>
+export async function apiCreateContext(input: { name: string; schema: any }) {
+  const res = await request('/v1/contexts', { method: 'POST', body: JSON.stringify(input) }) as { dataset_id: string }
+  return { context_id: res.dataset_id }
 }
 
-export async function apiUpdateDataset(id: string, data: { name?: string; schema?: any }) {
-  return request(`/v1/datasets/${id}`, { method: 'PATCH', body: JSON.stringify(data) })
+export async function apiUpdateContext(id: string, data: { name?: string; schema?: any }) {
+  return request(`/v1/contexts/${id}`, { method: 'PATCH', body: JSON.stringify(data) })
 }
 
-export async function apiDeprecateDataset(id: string) {
-  return request(`/v1/datasets/${id}/deprecate`, { method: 'POST' })
+export async function apiDeprecateContext(id: string) {
+  return request(`/v1/contexts/${id}/deprecate`, { method: 'POST' })
 }
 
 // Operations
@@ -181,7 +180,7 @@ export async function apiGetOperations() {
 }
 
 export async function apiGetOperation(id: string) {
-  return request(`/v1/operations/${id}`) as Promise<{
+  const res = await request(`/v1/operations/${id}`) as {
     operation_id: string
     name: string
     version: string
@@ -203,7 +202,14 @@ export async function apiGetOperation(id: string) {
       resultRetentionDays: number
       autoDeleteAfter: boolean
     }
-  }>
+  }
+  return {
+    ...res,
+    context_id: res.dataset_id,
+    context: res.dataset
+      ? { context_id: res.dataset.dataset_id, name: res.dataset.name, schema: res.dataset.schema }
+      : undefined,
+  }
 }
 
 export async function apiGetOperationSnippet(id: string) {
@@ -220,14 +226,19 @@ export async function apiCreateOperation(input: {
   name: string
   version: string
   pipeline: any
-  datasetId?: string
+  contextId?: string
   retentionPolicy?: {
     jobRetentionDays: number
     resultRetentionDays: number
     autoDeleteAfter: boolean
   }
 }) {
-  return request('/v1/pipelines/operations', { method: 'POST', body: JSON.stringify(input) }) as Promise<any>
+  const { contextId, ...rest } = input
+  const payload = {
+    ...rest,
+    ...(contextId ? { datasetId: contextId } : {}),
+  }
+  return request('/v1/pipelines/operations', { method: 'POST', body: JSON.stringify(payload) }) as Promise<any>
 }
 
 export async function apiUpdateOperation(id: string, data: { name?: string; version?: string }) {
@@ -395,34 +406,6 @@ export async function apiDeletePipelineDraft() {
   }>
 }
 
-// Webhooks
-export async function apiGetWebhooks() {
-  return request('/v1/webhooks') as Promise<{
-    items: Array<{
-      webhook_id: string
-      url: string
-      events: string[]
-      status: 'active' | 'disabled'
-      created_at: string
-      last_triggered?: string
-    }>
-  }>
-}
-
-export async function apiCreateWebhook(input: { url: string; events: string[] }) {
-  return request('/v1/webhooks', { method: 'POST', body: JSON.stringify(input) })
-}
-
-export async function apiDeleteWebhook(id: string) {
-  return request(`/v1/webhooks/${id}`, { method: 'DELETE' })
-}
-
-export async function apiTestWebhook(url: string) {
-  return request('/v1/webhooks/test', { method: 'POST', body: JSON.stringify({ url }) }) as Promise<{
-    delivered: boolean
-  }>
-}
-
 // Credits
 export async function apiGetCredits() {
   const out = await request('/v1/credits') as { balance_cents: number; plan?: string }
@@ -479,17 +462,6 @@ export async function apiGetCreditsLedger(params?: { limit?: number; cursor?: st
     }>
     next_cursor?: string
   }>
-}
-
-// Attestations
-export async function apiVerifyAttestation(input: { pipeline_hash: string; attestation: any }) {
-  return request('/v1/attestations/verify', { method: 'POST', body: JSON.stringify(input) }) as Promise<{
-    valid: boolean
-  }>
-}
-
-export async function apiGetAttestation(jobId: string) {
-  return request(`/v1/attestations/${jobId}`)
 }
 
 // Public

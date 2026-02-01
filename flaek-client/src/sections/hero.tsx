@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion'
 import ButtonLink from '@/components/button'
 import BackgroundGrid from '@/components/background-grid'
+import { Modal } from '@/components/ui/modal'
 import { useState } from 'react'
 
 export default function Hero() {
   const [mouse, setMouse] = useState<{ x: number; y: number } | null>(null)
+  const [demoOpen, setDemoOpen] = useState(false)
   return (
     <section
       id="overview"
@@ -23,8 +25,8 @@ export default function Hero() {
           transition={{ duration: 0.7 }}
           className="text-4xl md:text-6xl font-semibold leading-tight tracking-tight text-balance max-w-4xl md:max-w-5xl mx-auto"
         >
-          <span className="block">Execute private compute</span>
-          <span className="block">on sensitive data</span>
+          <span className="block">Compose permissioned</span>
+          <span className="block">MagicBlock flows</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -32,7 +34,7 @@ export default function Hero() {
           transition={{ duration: 0.7, delay: 0.08 }}
           className="mt-6 md:mt-7 text-lg md:text-xl leading-7 md:leading-8 text-white/80 text-pretty max-w-2xl mx-auto"
         >
-          Build MagicBlock ER/PER flows with a visual builder or API, and integrate via HMAC‑signed webhooks.
+          Build and run MagicBlock ER/PER flows with a visual builder or API, inject runtime context, and run jobs with user wallets.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -41,10 +43,27 @@ export default function Hero() {
           className="mt-10 flex flex-col md:flex-row items-center justify-center gap-3"
         >
           <ButtonLink href="/get-started" className="md:w-auto">Get started</ButtonLink>
-          <ButtonLink href="/docs" variant="secondary" className="md:w-auto">Read the Docs</ButtonLink>
+          <button
+            type="button"
+            onClick={() => setDemoOpen(true)}
+            className="inline-flex items-center justify-center rounded-full px-5 py-3 text-sm md:text-base font-medium transition border border-white/10 hover:border-white/20 md:w-auto"
+          >
+            Watch demo
+          </button>
         </motion.div>
 
       </div>
+      <Modal
+        open={demoOpen}
+        onClose={() => setDemoOpen(false)}
+        title="Flaek demo"
+      >
+        <div className="relative w-full pt-[56.25%] rounded-xl overflow-hidden border border-white/10 bg-black/40">
+          <div className="absolute inset-0 flex items-center justify-center text-sm text-white/60">
+            Demo video placeholder
+          </div>
+        </div>
+      </Modal>
     </section>
   )
 }

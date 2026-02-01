@@ -19,25 +19,25 @@ export default function HowItWorks() {
             How to use Flaek
           </h2>
           <p className="mt-4 text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
-            Build, deploy, and verify private compute pipelines in three simple steps
+            Build, publish, and run permissioned flows in three simple steps
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           <StepCard
             step={1}
-            title="Define your dataset"
-            description="Create a schema with fields, types, and validation rules. Ingest CSV/JSONL via drag-and-drop or API."
-            link="Create dataset"
+            title="Define your context"
+            description="Describe the runtime context your flow expects. Add fields, types, and validation rules for dynamic inputs."
+            link="Define context"
           >
-            <div className="aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-6 flex flex-col justify-center">
+            <div className="aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5 flex flex-col justify-center">
               <div className="space-y-4">
-                <div className="text-xs uppercase tracking-wider text-white/50 mb-4">Fields</div>
+                <div className="text-xs uppercase tracking-wider text-white/50 mb-4">Context fields</div>
                 <div className="space-y-3">
-                  <FieldRow label="income" type="number" required />
-                  <FieldRow label="debt_ratio" type="number" required />
-                  <FieldRow label="payment_history" type="number" required />
-                  <FieldRow label="credit_age" type="number" />
+                  <FieldRow label="player_hash" type="string" required />
+                  <FieldRow label="room_id" type="string" required />
+                  <FieldRow label="score_delta" type="number" required />
+                  <FieldRow label="item_id" type="string" />
                 </div>
               </div>
             </div>
@@ -45,32 +45,22 @@ export default function HowItWorks() {
 
           <StepCard
             step={2}
-            title="Build your pipeline"
-            description="Compose MagicBlock ER/PER flows to control permissions and execute Solana program instructions with privacy hooks."
-            note="Custom circuit runtime coming soon."
+            title="Build your flow"
+            description="Compose MagicBlock ER/PER flows to control permissions and execute Solana program instructions."
             link="Open builder"
           >
-            <div className="aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-6 flex flex-col justify-center">
-              <div className="space-y-4">
-                <div className="flex items-center justify-center gap-3">
-                  <BlockCard name="Average" active size="md" category="stats" />
-                  <ArrowRight />
-                  <BlockCard name="Weighted Avg" active size="md" category="stats" />
-                </div>
-                <div className="flex justify-center">
-                  <ArrowDown />
-                </div>
-                <div className="flex items-center justify-center">
-                  <BlockCard name="Credit Score" active size="lg" category="usecase" />
-                </div>
-                <div className="flex justify-center">
-                  <ArrowDown />
-                </div>
-                <div className="flex items-center justify-center gap-3">
-                  <BlockCard name="Greater Than" active size="md" category="compare" />
-                  <ArrowRight />
-                  <BlockCard name="If/Else" size="md" category="logic" />
-                </div>
+            <div className="aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5 flex flex-col justify-start">
+              <div className="text-xs uppercase tracking-wider text-white/50 mb-3">Flow steps</div>
+              <div className="space-y-2.5">
+                <FlowStep name="Create State" category="state" />
+                <FlowConnector />
+                <FlowStep name="Create Permission (Flaek)" category="permission" />
+                <FlowConnector />
+                <FlowStep name="Delegate State" category="delegation" />
+                <FlowConnector />
+                <FlowStep name="Commit + Undelegate Permission (Flaek)" category="permission" />
+                <FlowConnector />
+                <FlowStep name="Update State" category="state" />
               </div>
             </div>
           </StepCard>
@@ -78,14 +68,14 @@ export default function HowItWorks() {
           <StepCard
             step={3}
             title="Run & verify results"
-            description="Execute jobs with your dataset and published pipeline. Receive HMAC-signed webhooks with on-chain attestation proofs."
+            description="Execute jobs with your context and published flow. Track execution logs and signatures in the dashboard."
             link="View examples"
           >
-            <div className="aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-6 flex flex-col justify-center">
+            <div className="aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5 flex flex-col justify-center">
               <div className="space-y-3">
                 <ResultCard
                   label="POST /v1/jobs"
-                  sublabel="operation: credit_score_pipeline"
+                  sublabel="flow: game_state_flow"
                   status="processing"
                   color="blue"
                 />
@@ -93,13 +83,13 @@ export default function HowItWorks() {
                   <ArrowDown />
                 </div>
                 <ResultCard
-                  label="Webhook: job.completed"
-                  sublabel="result: { score: 720, approved: true }"
-                  status="✓ verified"
+                  label="Job completed"
+                  sublabel="result: { score: 12, inventory: ['sword'] }"
+                  status="✓ confirmed"
                   color="green"
                 />
                 <div className="mt-3 text-center text-xs text-white/50">
-                  x-flaek-signature + finalize_tx
+                  tx signatures + execution logs
                 </div>
               </div>
             </div>
@@ -146,12 +136,7 @@ function StepCard({
 
       {children}
 
-      <a
-        href="#"
-        className="mt-auto pt-6 inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors group"
-      >
-        {link} <span className="group-hover:translate-x-1 transition-transform">→</span>
-      </a>
+      <div className="mt-auto pt-6" />
     </motion.div>
   )
 }
@@ -179,37 +164,34 @@ function FieldRow({
   )
 }
 
-function BlockCard({ name, active, size, category }: { name: string; active?: boolean; size?: string; category?: string }) {
-  const sizeClasses = {
-    sm: 'p-3 text-xs min-w-[90px]',
-    md: 'p-4 text-sm min-w-[110px]',
-    lg: 'p-5 text-base min-w-[140px]',
+function FlowStep({ name, category }: { name: string; category: 'state' | 'permission' | 'delegation' | 'magic' | 'program' }) {
+  const categoryStyles: Record<string, { dot: string; badge: string }> = {
+    state: { dot: 'bg-sky-400', badge: 'bg-sky-500/15 text-sky-200 border-sky-500/30' },
+    permission: { dot: 'bg-emerald-400', badge: 'bg-emerald-500/15 text-emerald-200 border-emerald-500/30' },
+    delegation: { dot: 'bg-purple-400', badge: 'bg-purple-500/15 text-purple-200 border-purple-500/30' },
+    magic: { dot: 'bg-teal-400', badge: 'bg-teal-500/15 text-teal-200 border-teal-500/30' },
+    program: { dot: 'bg-amber-400', badge: 'bg-amber-500/15 text-amber-200 border-amber-500/30' },
   }
 
-  const categoryColors = {
-    math: 'from-blue-500/20 to-blue-600/10 border-blue-500/30',
-    stats: 'from-purple-500/20 to-purple-600/10 border-purple-500/30',
-    compare: 'from-orange-500/20 to-orange-600/10 border-orange-500/30',
-    usecase: 'from-green-500/20 to-green-600/10 border-green-500/30',
-    logic: 'from-cyan-500/20 to-cyan-600/10 border-cyan-500/30',
-  }
-
-  const bgClass = active && category
-    ? categoryColors[category as keyof typeof categoryColors] || 'from-brand-500/20 to-brand-600/10 border-brand-500/30'
-    : active
-    ? 'border-brand-500/30 bg-gradient-to-br from-brand-500/20 to-brand-600/10'
-    : 'border-white/10 bg-white/[0.03]'
+  const styles = categoryStyles[category] || categoryStyles.state
 
   return (
-    <div
-      className={`relative rounded-xl border text-center font-medium transition-all ${
-        sizeClasses[size as keyof typeof sizeClasses] || sizeClasses.md
-      } ${active ? `bg-gradient-to-br ${bgClass} text-white shadow-lg shadow-brand-500/10` : `${bgClass} text-white/60`}`}
-    >
-      {active && (
-        <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-brand-500 border-2 border-[#0B0D17]" />
-      )}
-      {name}
+    <div className="flex items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+      <div className="flex items-center gap-2 min-w-0">
+        <span className={`h-1.5 w-1.5 rounded-full ${styles.dot}`} />
+        <div className="text-xs font-medium text-white/90 leading-snug">{name}</div>
+      </div>
+      <span className={`text-[9px] uppercase tracking-widest px-2 py-0.5 rounded border ${styles.badge}`}>
+        {category}
+      </span>
+    </div>
+  )
+}
+
+function FlowConnector() {
+  return (
+    <div className="flex justify-center">
+      <span className="h-2.5 w-px bg-white/15" />
     </div>
   )
 }
@@ -251,14 +233,6 @@ function ResultCard({
         )}
       </div>
     </div>
-  )
-}
-
-function ArrowRight() {
-  return (
-    <svg className="w-6 h-6 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-    </svg>
   )
 }
 

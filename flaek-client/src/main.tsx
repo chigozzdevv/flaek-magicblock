@@ -9,13 +9,11 @@ import ResetPasswordPage from '@/pages/reset-password'
 import DocsPage from '@/pages/docs'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import OverviewPage from '@/pages/dashboard/overview'
-import DatasetsPage from '@/pages/dashboard/datasets'
 import PipelineBuilderPage from '@/pages/dashboard/pipeline-builder'
 import OperationsPage from '@/pages/dashboard/operations'
 import JobsPage from '@/pages/dashboard/jobs'
 import BlocksPage from '@/pages/dashboard/blocks'
 import ApiKeysPage from '@/pages/dashboard/api-keys'
-import WebhooksPage from '@/pages/dashboard/webhooks'
 import CreditsPage from '@/pages/dashboard/credits'
 import SettingsPage from '@/pages/dashboard/settings'
 
@@ -42,13 +40,11 @@ function Router() {
     return (
       <DashboardLayout currentPath={path}>
         {path === '/dashboard' && <OverviewPage />}
-        {path === '/dashboard/datasets' && <DatasetsPage />}
         {path === '/dashboard/pipelines' && <PipelineBuilderPage />}
         {path === '/dashboard/operations' && <OperationsPage />}
         {path === '/dashboard/jobs' && <JobsPage />}
         {path === '/dashboard/blocks' && <BlocksPage />}
         {path === '/dashboard/keys' && <ApiKeysPage />}
-        {path === '/dashboard/webhooks' && <WebhooksPage />}
         {path === '/dashboard/credits' && <CreditsPage />}
         {path === '/dashboard/settings' && <SettingsPage />}
       </DashboardLayout>

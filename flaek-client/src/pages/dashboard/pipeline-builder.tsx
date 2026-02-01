@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Modal } from '@/components/ui/modal'
-import { apiCreateOperation, apiGetBlocks, apiGetPipelineTemplates, apiTestPipeline } from '@/lib/api'
+import { apiCreateContext, apiCreateOperation, apiGetBlocks, apiGetPipelineTemplates, apiTestPipeline } from '@/lib/api'
 
 type BlockDef = {
   id: string
@@ -144,6 +144,8 @@ export default function PipelineBuilderPage() {
   function PublishPipelineModal({ open, onClose }: { open: boolean; onClose: () => void }) {
     const [name, setName] = useState('')
     const [version, setVersion] = useState('1.0.0')
+    const [contextName, setContextName] = useState('')
+    const [contextSchema, setContextSchema] = useState('')
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
 
@@ -165,7 +167,26 @@ export default function PipelineBuilderPage() {
           })),
           edges,
         }
-        await apiCreateOperation({ name: name.trim(), version: version.trim(), pipeline })
+        let contextId: string | undefined
+        if (contextSchema.trim()) {
+          let parsedSchema: any
+          try {
+            parsedSchema = JSON.parse(contextSchema)
+          } catch {
+            setError('Context schema must be valid JSON')
+            setSaving(false)
+            return
+          }
+          const ctxName = contextName.trim() || `${name.trim()} context`
+          const contextRes = await apiCreateContext({ name: ctxName, schema: parsedSchema })
+          contextId = contextRes.context_id
+        }
+        await apiCreateOperation({
+          name: name.trim(),
+          version: version.trim(),
+          pipeline,
+          ...(contextId ? { contextId } : {}),
+        })
         onClose()
       } catch (e: any) {
         setError(e.message || 'Failed to save flow')
@@ -189,6 +210,27 @@ export default function PipelineBuilderPage() {
             value={version}
             onChange={(e) => setVersion(e.target.value)}
           />
+          <div className="space-y-2">
+            <label className="text-xs text-white/60">Context name (optional)</label>
+            <input
+              className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white"
+              placeholder="e.g. game-event-context"
+              value={contextName}
+              onChange={(e) => setContextName(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs text-white/60">Context schema (JSON, optional)</label>
+            <textarea
+              className="w-full h-32 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white font-mono"
+              placeholder='{"type":"object","properties":{"playerHash":{"type":"string"},"gameState":{"type":"object"}}}'
+              value={contextSchema}
+              onChange={(e) => setContextSchema(e.target.value)}
+            />
+            <div className="text-[11px] text-white/40">
+              Context validates runtime inputs and powers snippet placeholders.
+            </div>
+          </div>
           {error && <div className="text-xs text-red-400">{error}</div>}
           <Button onClick={handleSave} disabled={saving} className="w-full">
             {saving ? 'Saving...' : 'Save Flow'}

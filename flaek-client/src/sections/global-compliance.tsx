@@ -5,24 +5,24 @@ import { Database, Shield, FileCheck } from 'lucide-react'
 const FEATURES = [
   {
     icon: Database,
-    title: 'Data residency & retention',
-    description: 'Retained batches with TTL or ephemeral run-now.',
+    title: 'Context schema',
+    description: 'Validate per‑event inputs before execution.',
   },
   {
     icon: Shield,
-    title: 'PII-safe pipelines',
-    description: 'Run on encrypted inputs; keep raw data out of your app.',
+    title: 'Permissioned state',
+    description: 'Delegate, commit, and undelegate state with MagicBlock primitives.',
   },
   {
     icon: FileCheck,
-    title: 'Auditable attestations',
-    description: 'Permissioned flows can be audited via MagicBlock PER access controls.',
+    title: 'Run visibility',
+    description: 'Capture signatures and execution logs for every job.',
   },
 ]
 
 export default function GlobalCompliance() {
   return (
-    <section id="compliance" className="section-demo relative overflow-hidden scroll-mt-24 md:scroll-mt-28">
+    <section id="execution" className="section-demo relative overflow-hidden scroll-mt-24 md:scroll-mt-28">
       <div className="container-outer pt-20 md:pt-32">
         <SectionDivider />
       </div>
@@ -79,10 +79,10 @@ export default function GlobalCompliance() {
             className="order-1 lg:order-2"
           >
             <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-white">
-              Globally data-compliant with private compute
+              Shared program flows for fast state changes
             </h2>
             <p className="mt-6 text-base md:text-lg text-white/60 leading-relaxed">
-              Handle sensitive data in private flows and stay compliant. Flaek uses MagicBlock ER/PER primitives to enforce access controls while keeping execution inside TEE-backed infrastructure.
+              Compose ER/PER flows on Flaek’s shared program and execute state updates on validators close to your users.
             </p>
 
             <div className="mt-10 space-y-6">

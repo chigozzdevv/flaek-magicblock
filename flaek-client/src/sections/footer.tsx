@@ -5,9 +5,9 @@ export default function Footer() {
         <div>© {new Date().getFullYear()} Flaek</div>
         <nav className="flex items-center gap-5">
           <a href="/#overview" className="hover:text-white">Overview</a>
-          <a href="/docs" className="hover:text-white">Docs</a>
-          <a href="/#learn-more" className="hover:text-white">Support</a>
-          <a href="#status" className="hover:text-white">Status</a>
+          <a href="/#how-it-works" className="hover:text-white">How it works</a>
+          <a href="/#execution" className="hover:text-white">Execution</a>
+          <a href="/#blocks" className="hover:text-white">Blocks</a>
         </nav>
       </div>
     </footer>

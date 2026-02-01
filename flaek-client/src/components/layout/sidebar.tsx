@@ -1,18 +1,16 @@
-import { LayoutDashboard, Database, Workflow, Package, Briefcase, Blocks, Key, Webhook, CreditCard, LogOut, Play, Settings as SettingsIcon } from 'lucide-react'
+import { LayoutDashboard, Workflow, Package, Briefcase, Blocks, Key, CreditCard, LogOut, Play, Settings as SettingsIcon } from 'lucide-react'
 import BrandLogo from '@/components/brand-logo'
 import { navigate } from '@/lib/router'
 import { clearToken } from '@/lib/auth'
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Overview', path: '/dashboard' },
-  { icon: Database, label: 'Datasets', path: '/dashboard/datasets' },
-  { icon: Workflow, label: 'Pipeline Builder', path: '/dashboard/pipelines' },
-  { icon: Package, label: 'Operations', path: '/dashboard/operations' },
+  { icon: Workflow, label: 'Flow Builder', path: '/dashboard/pipelines' },
+  { icon: Package, label: 'Flows', path: '/dashboard/operations' },
   { icon: Play, label: 'Playground', path: '/dashboard/playground' },
   { icon: Briefcase, label: 'Jobs', path: '/dashboard/jobs' },
   { icon: Blocks, label: 'Blocks Library', path: '/dashboard/blocks' },
   { icon: Key, label: 'API Keys', path: '/dashboard/keys' },
-  { icon: Webhook, label: 'Webhooks', path: '/dashboard/webhooks' },
   { icon: CreditCard, label: 'Credits', path: '/dashboard/credits' },
   { icon: SettingsIcon, label: 'Settings', path: '/dashboard/settings' },
 ]

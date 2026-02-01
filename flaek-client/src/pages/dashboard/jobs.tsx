@@ -65,6 +65,15 @@ export default function JobsPage() {
     loadJobs()
     setupSocket()
     loadMagicblockMeta()
+    const params = new URLSearchParams(window.location.search)
+    const jobId = params.get('job')
+    if (jobId) {
+      viewJob(jobId).catch(() => undefined)
+      params.delete('job')
+      const next = params.toString()
+      const nextUrl = `${window.location.pathname}${next ? `?${next}` : ''}`
+      window.history.replaceState({}, '', nextUrl)
+    }
 
     return () => {
       if (socketRef.current) {

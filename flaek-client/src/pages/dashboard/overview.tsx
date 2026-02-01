@@ -3,14 +3,14 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Database, Package, Briefcase, TrendingUp, Plus, Zap, Workflow, Loader2 } from 'lucide-react'
 import { navigate } from '@/lib/router'
-import { apiGetDatasets, apiGetOperations, apiGetJobs } from '@/lib/api'
+import { apiGetContexts, apiGetOperations, apiGetJobs } from '@/lib/api'
 
 export default function OverviewPage() {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
     jobsCount: 0,
     operationsCount: 0,
-    datasetsCount: 0,
+    contextsCount: 0,
     successRate: 0,
   })
   const [recentJobs, setRecentJobs] = useState<any[]>([])
@@ -23,8 +23,8 @@ export default function OverviewPage() {
     try {
       // Compute last 30 days window on client and pass 'since' to backend
       const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
-      const [datasets, operations, firstPage] = await Promise.all([
-        apiGetDatasets(),
+      const [contexts, operations, firstPage] = await Promise.all([
+        apiGetContexts(),
         apiGetOperations(),
         apiGetJobs({ limit: 100, since }),
       ])
@@ -47,7 +47,7 @@ export default function OverviewPage() {
       setStats({
         jobsCount: allJobs.length,
         operationsCount: operations.items.length,
-        datasetsCount: datasets.items.length,
+        contextsCount: contexts.items.length,
         successRate,
       })
       setRecentJobs(firstPage.items.slice(0, 5))
@@ -83,16 +83,16 @@ export default function OverviewPage() {
         />
         <StatsCard
           icon={Package}
-          label="Operations"
+          label="Flows"
           value={stats.operationsCount.toString()}
-          subtitle="Active pipelines"
+          subtitle="Published flows"
           color="text-purple-400"
         />
         <StatsCard
           icon={Database}
-          label="Datasets"
-          value={stats.datasetsCount.toString()}
-          subtitle="Schema contracts"
+          label="Contexts"
+          value={stats.contextsCount.toString()}
+          subtitle="Context schemas"
           color="text-green-400"
         />
         <StatsCard
@@ -111,7 +111,7 @@ export default function OverviewPage() {
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Zap size={48} className="text-white/20 mb-4" />
               <p className="text-text-secondary mb-1">No jobs yet</p>
-              <p className="text-sm text-white/50">Create a dataset and pipeline to get started</p>
+              <p className="text-sm text-white/50">Create a flow to get started</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -126,14 +126,14 @@ export default function OverviewPage() {
           <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
           <div className="space-y-2">
             <ActionButton
-              icon={Database}
-              label="Create Dataset"
-              onClick={() => navigate('/dashboard/datasets')}
+              icon={Workflow}
+              label="Create Flow"
+              onClick={() => navigate('/dashboard/pipelines')}
             />
             <ActionButton
-              icon={Workflow}
-              label="Build Pipeline"
-              onClick={() => navigate('/dashboard/pipelines')}
+              icon={Package}
+              label="View Flows"
+              onClick={() => navigate('/dashboard/operations')}
             />
             <ActionButton
               icon={Briefcase}
@@ -147,9 +147,9 @@ export default function OverviewPage() {
       <Card>
         <h2 className="text-lg font-semibold mb-4">Getting Started</h2>
         <div className="space-y-3">
-          <ChecklistItem completed={stats.datasetsCount > 0} text="Create your first dataset" />
-          <ChecklistItem completed={stats.operationsCount > 0} text="Build a pipeline with blocks" />
-          <ChecklistItem completed={stats.operationsCount > 0} text="Publish as an operation" />
+          <ChecklistItem completed={stats.contextsCount > 0} text="Define your first context" />
+          <ChecklistItem completed={stats.operationsCount > 0} text="Build a flow with blocks" />
+          <ChecklistItem completed={stats.operationsCount > 0} text="Publish as a flow" />
           <ChecklistItem completed={stats.jobsCount > 0} text="Run your first MagicBlock flow" />
         </div>
       </Card>
@@ -169,7 +169,7 @@ function JobRow({ job }: { job: any }) {
 
   return (
     <button
-      onClick={() => navigate(`/dashboard/jobs/${job.job_id}`)}
+      onClick={() => navigate(`/dashboard/jobs?job=${job.job_id}`)}
       className="w-full flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/10 hover:bg-white/[0.04] hover:border-white/20 transition text-left"
     >
       <div className="flex-1 min-w-0">

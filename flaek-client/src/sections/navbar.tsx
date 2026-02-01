@@ -67,10 +67,8 @@ export default function Navbar() {
         <nav className="hidden md:flex items-center gap-7 text-sm text-white/80">
           <a href="/#overview" className="hover:text-white">Overview</a>
           <a href="/#how-it-works" className="hover:text-white">How it works</a>
+          <a href="/#execution" className="hover:text-white">Execution</a>
           <a href="/#blocks" className="hover:text-white">Blocks</a>
-          <a href="/#compliance" className="hover:text-white">Compliance</a>
-          <a href="/#learn-more" className="hover:text-white">Support</a>
-          <a href="/docs" className="hover:text-white">Docs</a>
         </nav>
         <div className="flex items-center gap-2">
           <a href="/signin" onClick={handleSignInClick} className="hidden md:inline text-sm text-white/80 hover:text-white px-3 py-2">
@@ -100,10 +98,8 @@ export default function Navbar() {
           <div className="container-outer py-4 flex flex-col gap-1 text-sm">
             <a href="/#overview" onClick={close} className="px-1 py-2 text-white/80 hover:text-white">Overview</a>
             <a href="/#how-it-works" onClick={close} className="px-1 py-2 text-white/80 hover:text-white">How it works</a>
+            <a href="/#execution" onClick={close} className="px-1 py-2 text-white/80 hover:text-white">Execution</a>
             <a href="/#blocks" onClick={close} className="px-1 py-2 text-white/80 hover:text-white">Blocks</a>
-            <a href="/#compliance" onClick={close} className="px-1 py-2 text-white/80 hover:text-white">Compliance</a>
-            <a href="/#learn-more" onClick={close} className="px-1 py-2 text-white/80 hover:text-white">Support</a>
-            <a href="/docs" onClick={close} className="px-1 py-2 text-white/80 hover:text-white">Docs</a>
             <div className="h-px my-2 bg-white/10" />
             <a href="/signin" onClick={(e) => { handleSignInClick(e); close(); }} className="px-1 py-2 text-white/80 hover:text-white">
               Sign in

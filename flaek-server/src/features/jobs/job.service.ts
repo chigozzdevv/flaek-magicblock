@@ -4,9 +4,22 @@ import { creditService } from '@/features/credits/credit.service';
 import { pipelineService } from '@/features/pipelines/pipeline.service';
 import { operationRepository } from '@/features/operations/operation.repository';
 import type { ExecutionPlan } from '@/features/pipelines/pipeline.engine';
+import { datasetRepository } from '@/features/datasets/dataset.repository';
+import Ajv, { type ValidateFunction } from 'ajv';
 
 const CONTEXT_TOKEN_RE = /\{\{\s*([^}]+?)\s*\}\}/g;
 const DIRECT_CTX_RE = /^\$ctx\.([A-Za-z0-9_\-\.\[\]"']+)$/;
+const ajv = new Ajv({ allErrors: true, strict: false });
+const schemaValidators = new Map<string, ValidateFunction>();
+
+function getSchemaValidator(schema: any) {
+  const key = JSON.stringify(schema || {});
+  const existing = schemaValidators.get(key);
+  if (existing) return existing;
+  const compiled = ajv.compile(schema || {});
+  schemaValidators.set(key, compiled);
+  return compiled;
+}
 
 function getContextValue(context: Record<string, any>, rawPath: string) {
   const normalized = rawPath
@@ -99,6 +112,17 @@ async function createPlan(input: {
   if (!op) throw httpError(404, 'not_found', 'operation_not_found');
   if (op.pipelineSpec?.type !== 'magicblock_graph') {
     throw httpError(400, 'invalid_state', 'operation_is_not_magicblock_graph');
+  }
+  if (op.datasetId) {
+    const dataset = await datasetRepository.getById(input.tenantId, op.datasetId);
+    if (!dataset) throw httpError(404, 'not_found', 'dataset_not_found');
+    if (dataset.status === 'deprecated') throw httpError(400, 'invalid_state', 'dataset_deprecated');
+    const validate = getSchemaValidator(dataset.schema);
+    const context = input.context ?? {};
+    const valid = validate(context);
+    if (!valid) {
+      throw httpError(400, 'invalid_state', 'context_invalid', { errors: validate.errors });
+    }
   }
   const pipeline = op.pipelineSpec.pipeline;
   const planResult = await pipelineService.executePipeline(input.tenantId, pipeline as any);

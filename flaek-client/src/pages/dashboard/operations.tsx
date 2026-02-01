@@ -98,7 +98,7 @@ export default function OperationsPage() {
     }
     try {
       const res = await apiCreateJob({ operation: operationId, execution_mode: mode as 'per' | 'er' })
-      alert(`Run planned: ${res.job_id}`)
+      navigate(`/dashboard/jobs?job=${res.job_id}`)
     } catch (err: any) {
       alert(err.message || 'Failed to create run')
     }
@@ -135,7 +135,7 @@ export default function OperationsPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
           <input
             type="text"
-            placeholder="Search operations..."
+            placeholder="Search flows..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-brand-500/50"
@@ -147,7 +147,7 @@ export default function OperationsPage() {
         {filteredOps.length === 0 ? (
           <Card className="p-12 text-center">
             <Box className="w-12 h-12 mx-auto mb-4 text-white/20" />
-            <h3 className="text-lg font-semibold mb-2">No Operations Yet</h3>
+            <h3 className="text-lg font-semibold mb-2">No Flows Yet</h3>
             <p className="text-sm text-white/60 mb-6">
               Create your first flow by building a graph
             </p>
@@ -241,7 +241,7 @@ export default function OperationsPage() {
       {/* Runs are created from the flow list */}
 
       {showDetails && selectedOp && (
-        <Modal open={showDetails} onClose={() => setShowDetails(false)} title="Operation Details">
+        <Modal open={showDetails} onClose={() => setShowDetails(false)} title="Flow Details">
           <div className="space-y-4">
             <div>
               <label className="text-xs font-semibold text-white/70 mb-1 block">Name</label>
@@ -281,6 +281,17 @@ export default function OperationsPage() {
                 {selectedOp.pipeline_hash}
               </div>
             </div>
+            {selectedOp.context && (
+              <div>
+                <label className="text-xs font-semibold text-white/70 mb-1 block">Context</label>
+                <div className="text-xs text-white/60 mb-2">
+                  Context ID: <span className="font-mono">{selectedOp.context.context_id}</span>
+                </div>
+                <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg">
+                  {JSON.stringify(selectedOp.context.schema || {}, null, 2)}
+                </pre>
+              </div>
+            )}
             <div>
               <label className="text-xs font-semibold text-white/70 mb-1 block">Artifact URI</label>
               <div className="text-xs font-mono bg-white/5 p-2 rounded border border-white/10 break-all">
@@ -374,10 +385,10 @@ function EditOperationModal({ operation, open, onClose, onUpdate }: { operation:
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Edit Operation">
+    <Modal open={open} onClose={onClose} title="Edit Flow">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="text-xs font-semibold text-white/70 mb-2 block">Operation Name</label>
+          <label className="text-xs font-semibold text-white/70 mb-2 block">Flow Name</label>
           <input
             type="text"
             value={name}

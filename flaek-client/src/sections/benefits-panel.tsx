@@ -2,19 +2,19 @@ import { motion } from 'framer-motion'
 
 const items = [
   {
-    title: 'Verifiable execution',
-    sub: 'Attested results',
-    body: 'Each flow can be verified via MagicBlock permission events and TEE-backed execution.'
+    title: 'Permissioned execution',
+    sub: 'ER/PER primitives',
+    body: 'Delegate, commit, and undelegate state with MagicBlock building blocks.'
   },
   {
-    title: 'Private by default',
-    sub: 'Encrypted inputs',
-    body: 'Keep raw data private. Use retained batches for reproducibility or ephemeral ingest for run‑now without persistence.'
+    title: 'Context‑driven flows',
+    sub: 'Runtime inputs',
+    body: 'Define a context schema in the flow and validate per‑event inputs.'
   },
   {
     title: 'Developer‑first',
-    sub: 'Simple APIs',
-    body: 'Clean REST, idempotency keys, and HMAC‑signed webhooks. Build visually or ship programmatically.'
+    sub: 'SDK + dashboard',
+    body: 'Run jobs via SDK or API, stream logs, and manage flows in one place.'
   },
 ]
 

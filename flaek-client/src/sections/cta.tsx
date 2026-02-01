@@ -16,11 +16,10 @@ export default function CTA() {
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           className="section-surface p-8 md:p-14 text-center"
         >
-          <h3 className="text-2xl md:text-3xl font-semibold tracking-tight">Ship compliant compute you can prove.</h3>
-          <p className="mt-3 text-text-secondary max-w-2xl mx-auto">Add privacy to Solana apps with MagicBlock ER/PER. Manage permissions and run protected flows on devnet.</p>
+          <h3 className="text-2xl md:text-3xl font-semibold tracking-tight">Ship permissioned flows you can trust.</h3>
+          <p className="mt-3 text-text-secondary max-w-2xl mx-auto">Add MagicBlock ER/PER to Solana apps. Manage permissions and run flows with runtime context on devnet.</p>
           <div className="mt-8 flex flex-col md:flex-row items-center justify-center gap-3">
             <ButtonLink href="/get-started" className="md:w-auto">Get API Key</ButtonLink>
-            <ButtonLink href="/docs" variant="secondary" className="md:w-auto">Read the Docs</ButtonLink>
           </div>
         </motion.div>
       </div>

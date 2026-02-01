@@ -15,8 +15,6 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(8),
   JWT_EXPIRES_IN: z.string().default('7d'),
 
-  WEBHOOK_SECRET: z.string().min(8),
-
   HELIUS_DEVNET_RPC: z.string(),
   MAGICBLOCK_TEE_RPC_URL: z.string().default('https://tee.magicblock.app'),
   MAGICBLOCK_TEE_WS_URL: z.string().default('wss://tee.magicblock.app'),
