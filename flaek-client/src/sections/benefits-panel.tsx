@@ -4,17 +4,17 @@ const items = [
   {
     title: 'Permissioned execution',
     sub: 'ER/PER primitives',
-    body: 'Delegate, commit, and undelegate state with MagicBlock building blocks.'
+    body: 'Delegate, commit, and undelegate state with MagicBlock building blocks.',
   },
   {
     title: 'Context‑driven flows',
     sub: 'Runtime inputs',
-    body: 'Define a context schema in the flow and validate per‑event inputs.'
+    body: 'Define a context schema in the flow and validate per‑event inputs.',
   },
   {
     title: 'Developer‑first',
     sub: 'SDK + dashboard',
-    body: 'Run jobs via SDK or API, stream logs, and manage flows in one place.'
+    body: 'Run jobs via SDK or API, stream logs, and manage flows in one place.',
   },
 ]
 
@@ -45,19 +45,40 @@ export default function BenefitsPanel() {
               transition={{ delay: i * 0.06 }}
             >
               <motion.h3
-                variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } } }}
+                variants={{
+                  hidden: { opacity: 0, y: 8 },
+                  show: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+                  },
+                }}
                 className="text-2xl md:text-3xl font-semibold"
               >
                 {it.title}
               </motion.h3>
               <motion.div
-                variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } } }}
+                variants={{
+                  hidden: { opacity: 0, y: 8 },
+                  show: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+                  },
+                }}
                 className="mt-1 text-xl md:text-2xl text-white/70"
               >
                 {it.sub}
               </motion.div>
               <motion.p
-                variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } } }}
+                variants={{
+                  hidden: { opacity: 0, y: 8 },
+                  show: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+                  },
+                }}
                 className="mt-4 text-white/70 leading-relaxed"
               >
                 {it.body}

@@ -34,7 +34,8 @@ export default function Hero() {
           transition={{ duration: 0.7, delay: 0.08 }}
           className="mt-6 md:mt-7 text-lg md:text-xl leading-7 md:leading-8 text-white/80 text-pretty max-w-2xl mx-auto"
         >
-          Build and run MagicBlock ER/PER flows with a visual builder or API, inject runtime context, and run jobs with user wallets.
+          Build and run MagicBlock ER/PER flows with a visual builder or API, inject runtime
+          context, and run jobs with user wallets.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -42,7 +43,9 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.16 }}
           className="mt-10 flex flex-col md:flex-row items-center justify-center gap-3"
         >
-          <ButtonLink href="/get-started" className="md:w-auto">Get started</ButtonLink>
+          <ButtonLink href="/get-started" className="md:w-auto">
+            Get started
+          </ButtonLink>
           <button
             type="button"
             onClick={() => setDemoOpen(true)}
@@ -51,13 +54,8 @@ export default function Hero() {
             Watch demo
           </button>
         </motion.div>
-
       </div>
-      <Modal
-        open={demoOpen}
-        onClose={() => setDemoOpen(false)}
-        title="Flaek demo"
-      >
+      <Modal open={demoOpen} onClose={() => setDemoOpen(false)} title="Flaek demo">
         <div className="relative w-full pt-[56.25%] rounded-xl overflow-hidden border border-white/10 bg-black/40">
           <div className="absolute inset-0 flex items-center justify-center text-sm text-white/60">
             Demo video placeholder

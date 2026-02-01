@@ -139,12 +139,16 @@ export default function ApiKeysPage() {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-white/50">Created:</span>
-                        <span className="ml-2">{new Date(key.created_at).toLocaleDateString()}</span>
+                        <span className="ml-2">
+                          {new Date(key.created_at).toLocaleDateString()}
+                        </span>
                       </div>
                       {key.last_used && (
                         <div>
                           <span className="text-white/50">Last Used:</span>
-                          <span className="ml-2">{new Date(key.last_used).toLocaleDateString()}</span>
+                          <span className="ml-2">
+                            {new Date(key.last_used).toLocaleDateString()}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -190,7 +194,11 @@ export default function ApiKeysPage() {
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="secondary" onClick={() => setShowCreateModal(false)} className="flex-1">
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowCreateModal(false)}
+                    className="flex-1"
+                  >
                     Cancel
                   </Button>
                   <Button onClick={createKey} disabled={creating} className="flex-1">
@@ -202,10 +210,14 @@ export default function ApiKeysPage() {
               <>
                 <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
                   <p className="text-sm text-amber-400 mb-2">⚠️ Save this key now!</p>
-                  <p className="text-xs text-white/60">This is the only time you'll see the full key. Store it securely.</p>
+                  <p className="text-xs text-white/60">
+                    This is the only time you'll see the full key. Store it securely.
+                  </p>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-white/70 mb-2 block">Your API Key</label>
+                  <label className="text-xs font-semibold text-white/70 mb-2 block">
+                    Your API Key
+                  </label>
                   <div className="flex gap-2">
                     <code className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm font-mono break-all">
                       {newKeyValue}
@@ -215,7 +227,13 @@ export default function ApiKeysPage() {
                     </Button>
                   </div>
                 </div>
-                <Button onClick={() => { setShowCreateModal(false); setNewKeyValue('') }} className="w-full">
+                <Button
+                  onClick={() => {
+                    setShowCreateModal(false)
+                    setNewKeyValue('')
+                  }}
+                  className="w-full"
+                >
                   Done
                 </Button>
               </>

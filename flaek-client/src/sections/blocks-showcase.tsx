@@ -1,25 +1,97 @@
 import { motion } from 'framer-motion'
 import {
-  Database, PenLine, Plus, ShieldCheck, Key, Shield, CheckCircle, CheckCircle2, Sparkles, Code
+  Database,
+  PenLine,
+  Plus,
+  ShieldCheck,
+  Key,
+  Shield,
+  CheckCircle,
+  CheckCircle2,
+  Sparkles,
+  Code,
 } from 'lucide-react'
 import SectionDivider from '@/components/section-divider'
 
 const BLOCKS = [
-  { id: 'flaek_create_state', name: 'Create State', icon: Database, category: 'state', color: '#38BDF8' },
-  { id: 'flaek_update_state', name: 'Update State', icon: PenLine, category: 'state', color: '#22C55E' },
-  { id: 'flaek_append_state', name: 'Append State', icon: Plus, category: 'state', color: '#F97316' },
-  { id: 'flaek_delegate_state', name: 'Delegate State', icon: ShieldCheck, category: 'delegation', color: '#A855F7' },
-  { id: 'flaek_create_permission', name: 'Create Permission (Flaek)', icon: Key, category: 'permission', color: '#0EA5E9' },
-  { id: 'flaek_update_permission', name: 'Update Permission (Flaek)', icon: Shield, category: 'permission', color: '#22C55E' },
-  { id: 'flaek_commit_permission', name: 'Commit Permission (Flaek)', icon: CheckCircle, category: 'permission', color: '#14B8A6' },
-  { id: 'flaek_commit_undelegate_permission', name: 'Commit + Undelegate (Flaek)', icon: CheckCircle2, category: 'permission', color: '#0EA5E9' },
-  { id: 'mb_magic_commit_undelegate', name: 'Magic Commit & Undelegate', icon: Sparkles, category: 'magic', color: '#FB923C' },
-  { id: 'mb_program_instruction', name: 'Program Instruction', icon: Code, category: 'program', color: '#64748B' },
+  {
+    id: 'flaek_create_state',
+    name: 'Create State',
+    icon: Database,
+    category: 'state',
+    color: '#38BDF8',
+  },
+  {
+    id: 'flaek_update_state',
+    name: 'Update State',
+    icon: PenLine,
+    category: 'state',
+    color: '#22C55E',
+  },
+  {
+    id: 'flaek_append_state',
+    name: 'Append State',
+    icon: Plus,
+    category: 'state',
+    color: '#F97316',
+  },
+  {
+    id: 'flaek_delegate_state',
+    name: 'Delegate State',
+    icon: ShieldCheck,
+    category: 'delegation',
+    color: '#A855F7',
+  },
+  {
+    id: 'flaek_create_permission',
+    name: 'Create Permission (Flaek)',
+    icon: Key,
+    category: 'permission',
+    color: '#0EA5E9',
+  },
+  {
+    id: 'flaek_update_permission',
+    name: 'Update Permission (Flaek)',
+    icon: Shield,
+    category: 'permission',
+    color: '#22C55E',
+  },
+  {
+    id: 'flaek_commit_permission',
+    name: 'Commit Permission (Flaek)',
+    icon: CheckCircle,
+    category: 'permission',
+    color: '#14B8A6',
+  },
+  {
+    id: 'flaek_commit_undelegate_permission',
+    name: 'Commit + Undelegate (Flaek)',
+    icon: CheckCircle2,
+    category: 'permission',
+    color: '#0EA5E9',
+  },
+  {
+    id: 'mb_magic_commit_undelegate',
+    name: 'Magic Commit & Undelegate',
+    icon: Sparkles,
+    category: 'magic',
+    color: '#FB923C',
+  },
+  {
+    id: 'mb_program_instruction',
+    name: 'Program Instruction',
+    icon: Code,
+    category: 'program',
+    color: '#64748B',
+  },
 ]
 
 export default function BlocksShowcase() {
   return (
-    <section id="blocks" className="section-demo relative overflow-hidden scroll-mt-24 md:scroll-mt-28">
+    <section
+      id="blocks"
+      className="section-demo relative overflow-hidden scroll-mt-24 md:scroll-mt-28"
+    >
       <div className="container-outer pt-20 md:pt-32">
         <SectionDivider />
       </div>
@@ -32,9 +104,7 @@ export default function BlocksShowcase() {
           transition={{ duration: 0.6 }}
           className="text-center mb-8"
         >
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
-            MagicBlock Blocks
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">MagicBlock Blocks</h2>
           <p className="mt-3 text-base md:text-lg text-white/60 max-w-xl mx-auto">
             Core state, permission, and delegation primitives available in Flaek
           </p>
@@ -58,7 +128,7 @@ export default function BlocksShowcase() {
   )
 }
 
-function BlockCard({ block }: { block: typeof BLOCKS[0] }) {
+function BlockCard({ block }: { block: (typeof BLOCKS)[0] }) {
   const Icon = block.icon
 
   return (

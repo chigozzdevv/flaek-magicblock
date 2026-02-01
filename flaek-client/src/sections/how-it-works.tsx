@@ -15,9 +15,7 @@ export default function HowItWorks() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12 md:mb-16"
         >
-          <h2 className="text-3xl md:text-5xl font-semibold tracking-tight">
-            How to use Flaek
-          </h2>
+          <h2 className="text-3xl md:text-5xl font-semibold tracking-tight">How to use Flaek</h2>
           <p className="mt-4 text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
             Build, publish, and run permissioned flows in three simple steps
           </p>
@@ -32,7 +30,9 @@ export default function HowItWorks() {
           >
             <div className="aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5 flex flex-col justify-center">
               <div className="space-y-4">
-                <div className="text-xs uppercase tracking-wider text-white/50 mb-4">Context fields</div>
+                <div className="text-xs uppercase tracking-wider text-white/50 mb-4">
+                  Context fields
+                </div>
                 <div className="space-y-3">
                   <FieldRow label="player_hash" type="string" required />
                   <FieldRow label="room_id" type="string" required />
@@ -123,16 +123,10 @@ function StepCard({
       transition={{ duration: 0.5, delay: step * 0.1 }}
       className="group relative h-full flex flex-col rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl p-8 hover:border-white/15 transition-all duration-300"
     >
-      <div className="text-xs uppercase tracking-widest text-white/50 mb-3">
-        Step {step}
-      </div>
+      <div className="text-xs uppercase tracking-widest text-white/50 mb-3">Step {step}</div>
       <h3 className="text-2xl md:text-3xl font-semibold mb-3">{title}</h3>
-      <p className="text-[15px] text-white/60 leading-relaxed mb-2">
-        {description}
-      </p>
-      {note && (
-        <p className="text-[13px] text-accent-500/90 italic mb-6">{note}</p>
-      )}
+      <p className="text-[15px] text-white/60 leading-relaxed mb-2">{description}</p>
+      {note && <p className="text-[13px] text-accent-500/90 italic mb-6">{note}</p>}
 
       {children}
 
@@ -141,15 +135,7 @@ function StepCard({
   )
 }
 
-function FieldRow({
-  label,
-  type,
-  required,
-}: {
-  label: string
-  type: string
-  required?: boolean
-}) {
+function FieldRow({ label, type, required }: { label: string; type: string; required?: boolean }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2.5 py-2.5 px-3 rounded-lg bg-white/[0.03] border border-white/5">
       <div className="flex items-center gap-2.5 min-w-0">
@@ -164,11 +150,23 @@ function FieldRow({
   )
 }
 
-function FlowStep({ name, category }: { name: string; category: 'state' | 'permission' | 'delegation' | 'magic' | 'program' }) {
+function FlowStep({
+  name,
+  category,
+}: {
+  name: string
+  category: 'state' | 'permission' | 'delegation' | 'magic' | 'program'
+}) {
   const categoryStyles: Record<string, { dot: string; badge: string }> = {
     state: { dot: 'bg-sky-400', badge: 'bg-sky-500/15 text-sky-200 border-sky-500/30' },
-    permission: { dot: 'bg-emerald-400', badge: 'bg-emerald-500/15 text-emerald-200 border-emerald-500/30' },
-    delegation: { dot: 'bg-purple-400', badge: 'bg-purple-500/15 text-purple-200 border-purple-500/30' },
+    permission: {
+      dot: 'bg-emerald-400',
+      badge: 'bg-emerald-500/15 text-emerald-200 border-emerald-500/30',
+    },
+    delegation: {
+      dot: 'bg-purple-400',
+      badge: 'bg-purple-500/15 text-purple-200 border-purple-500/30',
+    },
     magic: { dot: 'bg-teal-400', badge: 'bg-teal-500/15 text-teal-200 border-teal-500/30' },
     program: { dot: 'bg-amber-400', badge: 'bg-amber-500/15 text-amber-200 border-amber-500/30' },
   }
@@ -181,7 +179,9 @@ function FlowStep({ name, category }: { name: string; category: 'state' | 'permi
         <span className={`h-1.5 w-1.5 rounded-full ${styles.dot}`} />
         <div className="text-xs font-medium text-white/90 leading-snug">{name}</div>
       </div>
-      <span className={`text-[9px] uppercase tracking-widest px-2 py-0.5 rounded border ${styles.badge}`}>
+      <span
+        className={`text-[9px] uppercase tracking-widest px-2 py-0.5 rounded border ${styles.badge}`}
+      >
         {category}
       </span>
     </div>
@@ -239,7 +239,12 @@ function ResultCard({
 function ArrowDown() {
   return (
     <svg className="w-6 h-6 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M19 14l-7 7m0 0l-7-7m7 7V3"
+      />
     </svg>
   )
 }

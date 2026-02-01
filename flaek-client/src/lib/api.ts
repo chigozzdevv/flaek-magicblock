@@ -9,9 +9,9 @@ async function request(path: string, opts: RequestInit = {}) {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...getAuthHeaders(),
-    ...(opts.headers as Record<string, string> || {}),
+    ...((opts.headers as Record<string, string>) || {}),
   }
-  
+
   const res = await fetch(`${API_BASE}${path}`, {
     ...opts,
     method: opts.method || 'GET',
@@ -28,18 +28,24 @@ async function request(path: string, opts: RequestInit = {}) {
 }
 
 // Auth
-export async function apiSignup(input: { name: string; email: string; password: string; confirmPassword: string; orgName: string }) {
+export async function apiSignup(input: {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+  orgName: string
+}) {
   return request('/auth/signup', { method: 'POST', body: JSON.stringify(input) }) as Promise<{
-    user_id: string; tenant_id: string; totp: { secret_base32: string; otpauth_url: string }
+    user_id: string
+    tenant_id: string
+    totp: { secret_base32: string; otpauth_url: string }
   }>
 }
 
-export async function apiVerifyTotp(input: { email: string; code: string }) {
-  return request('/auth/verify-totp', { method: 'POST', body: JSON.stringify(input) }) as Promise<{ jwt: string }>
-}
-
-export async function apiLogin(input: { email: string; password: string; code?: string }) {
-  return request('/auth/login', { method: 'POST', body: JSON.stringify(input) }) as Promise<{ jwt: string }>
+export async function apiLogin(input: { email: string; password: string }) {
+  return request('/auth/login', { method: 'POST', body: JSON.stringify(input) }) as Promise<{
+    jwt: string
+  }>
 }
 
 export async function apiRequestPasswordReset(input: { email: string }) {
@@ -47,7 +53,11 @@ export async function apiRequestPasswordReset(input: { email: string }) {
   return { ok: true }
 }
 
-export async function apiConfirmPasswordReset(input: { token: string; password: string; confirmPassword: string }) {
+export async function apiConfirmPasswordReset(input: {
+  token: string
+  password: string
+  confirmPassword: string
+}) {
   await request('/auth/reset-password/confirm', { method: 'POST', body: JSON.stringify(input) })
   return { ok: true }
 }
@@ -104,20 +114,38 @@ export async function apiUpdateTenantName(name: string) {
 
 // User
 export async function apiMe() {
-  return request('/auth/me') as Promise<{ user: { id: string; name: string; email: string; role: string; totpEnabled: boolean; createdAt: string } }>
+  return request('/auth/me') as Promise<{
+    user: {
+      id: string
+      name: string
+      email: string
+      role: string
+      totpEnabled: boolean
+      createdAt: string
+    }
+  }>
 }
 
-export async function apiChangePassword(input: { oldPassword: string; newPassword: string; confirmNewPassword: string }) {
+export async function apiChangePassword(input: {
+  oldPassword: string
+  newPassword: string
+  confirmNewPassword: string
+}) {
   await request('/auth/change-password', { method: 'POST', body: JSON.stringify(input) })
   return { ok: true }
 }
 
 export async function apiTotpSetup() {
-  return request('/auth/totp/setup', { method: 'POST' }) as Promise<{ totp: { secret_base32: string; otpauth_url: string } }>
+  return request('/auth/totp/setup', { method: 'POST' }) as Promise<{
+    totp: { secret_base32: string; otpauth_url: string }
+  }>
 }
 
 export async function apiTotpVerifyJwt(code: string) {
-  return request('/auth/totp/verify', { method: 'POST', body: JSON.stringify({ code }) }) as Promise<{ enabled: boolean }>
+  return request('/auth/totp/verify', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
+  }) as Promise<{ enabled: boolean }>
 }
 
 export async function apiTotpDisable(code: string) {
@@ -153,7 +181,9 @@ export async function apiGetContext(id: string) {
 }
 
 export async function apiCreateContext(input: { name: string; schema: any }) {
-  const res = await request('/v1/contexts', { method: 'POST', body: JSON.stringify(input) }) as { dataset_id: string }
+  const res = (await request('/v1/contexts', { method: 'POST', body: JSON.stringify(input) })) as {
+    dataset_id: string
+  }
   return { context_id: res.dataset_id }
 }
 
@@ -180,7 +210,7 @@ export async function apiGetOperations() {
 }
 
 export async function apiGetOperation(id: string) {
-  const res = await request(`/v1/operations/${id}`) as {
+  const res = (await request(`/v1/operations/${id}`)) as {
     operation_id: string
     name: string
     version: string
@@ -238,7 +268,10 @@ export async function apiCreateOperation(input: {
     ...rest,
     ...(contextId ? { datasetId: contextId } : {}),
   }
-  return request('/v1/pipelines/operations', { method: 'POST', body: JSON.stringify(payload) }) as Promise<any>
+  return request('/v1/pipelines/operations', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }) as Promise<any>
 }
 
 export async function apiUpdateOperation(id: string, data: { name?: string; version?: string }) {
@@ -250,7 +283,12 @@ export async function apiDeprecateOperation(id: string) {
 }
 
 // Jobs
-export async function apiGetJobs(params?: { status?: string; limit?: number; cursor?: string; since?: string }) {
+export async function apiGetJobs(params?: {
+  status?: string
+  limit?: number
+  cursor?: string
+  since?: string
+}) {
   const query = new URLSearchParams(params as any).toString()
   return request(`/v1/jobs${query ? `?${query}` : ''}`) as Promise<{
     items: Array<{
@@ -284,10 +322,10 @@ export async function apiCreateJob(input: {
   context?: Record<string, any>
   callback_url?: string
 }) {
-  return request('/v1/jobs', { 
-    method: 'POST', 
+  return request('/v1/jobs', {
+    method: 'POST',
     body: JSON.stringify(input),
-    headers: { 'Idempotency-Key': crypto.randomUUID() }
+    headers: { 'Idempotency-Key': crypto.randomUUID() },
   }) as Promise<{
     job_id: string
     status: string
@@ -357,7 +395,10 @@ export async function apiGetBlockCategories() {
 
 // Pipelines
 export async function apiValidatePipeline(pipeline: any) {
-  return request('/v1/pipelines/validate', { method: 'POST', body: JSON.stringify({ pipeline }) }) as Promise<{
+  return request('/v1/pipelines/validate', {
+    method: 'POST',
+    body: JSON.stringify({ pipeline }),
+  }) as Promise<{
     valid: boolean
     errors: string[]
     warnings: string[]
@@ -370,7 +411,10 @@ export async function apiTestPipeline(input: { pipeline: any; inputs: any }) {
     pipeline: input.pipeline,
     inputs: input.inputs,
   }
-  const res = await request('/v1/pipelines/execute', { method: 'POST', body: JSON.stringify(body) }) as {
+  const res = (await request('/v1/pipelines/execute', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })) as {
     plan: any
     execution: { steps: Array<any>; duration: number; status: string }
   }
@@ -394,7 +438,10 @@ export async function apiGetPipelineDraft() {
 }
 
 export async function apiSavePipelineDraft(pipeline: any) {
-  return request('/v1/pipelines/draft', { method: 'POST', body: JSON.stringify({ pipeline }) }) as Promise<{
+  return request('/v1/pipelines/draft', {
+    method: 'POST',
+    body: JSON.stringify({ pipeline }),
+  }) as Promise<{
     success: boolean
     updatedAt: string
   }>
@@ -408,7 +455,7 @@ export async function apiDeletePipelineDraft() {
 
 // Credits
 export async function apiGetCredits() {
-  const out = await request('/v1/credits') as { balance_cents: number; plan?: string }
+  const out = (await request('/v1/credits')) as { balance_cents: number; plan?: string }
   return { balance: (out.balance_cents || 0) / 100 }
 }
 
@@ -416,20 +463,22 @@ export async function apiGetCredits() {
 export async function apiGetCreditHistory(params?: { limit?: number; cursor?: string }) {
   const [balanceRes, ledger] = await Promise.all([
     request('/v1/credits') as Promise<{ balance_cents: number }>,
-    apiGetCreditsLedger(params)
+    apiGetCreditsLedger(params),
   ])
   let running = (balanceRes.balance_cents || 0) / 100
   const items = ledger.items.map((i) => {
     const delta = (i.delta_cents || 0) / 100
     const reason = i.reason || ''
-    const type: 'purchase' | 'usage' | 'refund' | 'bonus' = delta >= 0
-      ? (reason === 'topup' ? 'purchase' : 'bonus')
-      : 'usage'
-    const description = reason === 'topup'
-      ? 'Top-up'
-      : reason === 'job_execution'
-        ? (i.job_id ? `Job execution (${i.job_id})` : 'Job execution')
-        : reason || 'Adjustment'
+    const type: 'purchase' | 'usage' | 'refund' | 'bonus' =
+      delta >= 0 ? (reason === 'topup' ? 'purchase' : 'bonus') : 'usage'
+    const description =
+      reason === 'topup'
+        ? 'Top-up'
+        : reason === 'job_execution'
+          ? i.job_id
+            ? `Job execution (${i.job_id})`
+            : 'Job execution'
+          : reason || 'Adjustment'
     const tx = {
       transaction_id: i.id,
       amount: delta,
@@ -445,7 +494,10 @@ export async function apiGetCreditHistory(params?: { limit?: number; cursor?: st
 }
 
 export async function apiTopUpCredits(amount_cents: number) {
-  return request('/v1/credits/topup', { method: 'POST', body: JSON.stringify({ amount_cents }) }) as Promise<{
+  return request('/v1/credits/topup', {
+    method: 'POST',
+    body: JSON.stringify({ amount_cents }),
+  }) as Promise<{
     balance_cents: number
   }>
 }

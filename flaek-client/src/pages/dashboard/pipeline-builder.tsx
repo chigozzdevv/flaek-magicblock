@@ -1,12 +1,25 @@
 import { useCallback, useEffect, useState } from 'react'
-import ReactFlow, { addEdge, useEdgesState, useNodesState, Background, Controls, Panel } from 'reactflow'
+import ReactFlow, {
+  addEdge,
+  useEdgesState,
+  useNodesState,
+  Background,
+  Controls,
+  Panel,
+} from 'reactflow'
 import type { Connection, Node, NodeTypes } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Modal } from '@/components/ui/modal'
-import { apiCreateContext, apiCreateOperation, apiGetBlocks, apiGetPipelineTemplates, apiTestPipeline } from '@/lib/api'
+import {
+  apiCreateContext,
+  apiCreateOperation,
+  apiGetBlocks,
+  apiGetPipelineTemplates,
+  apiTestPipeline,
+} from '@/lib/api'
 
 type BlockDef = {
   id: string
@@ -29,7 +42,9 @@ function BlockNode({ data, selected }: { data: any; selected?: boolean }) {
       style={{ borderColor: selected ? blockColor + '99' : blockColor + '55' }}
     >
       <div className="flex items-center justify-between mb-1">
-        <div className="text-xs font-semibold" style={{ color: blockColor }}>{data.block?.category || 'block'}</div>
+        <div className="text-xs font-semibold" style={{ color: blockColor }}>
+          {data.block?.category || 'block'}
+        </div>
         <div className="text-[10px] text-white/40">{data.blockId}</div>
       </div>
       <div className="text-sm font-medium text-white/90">{data.label}</div>
@@ -53,16 +68,20 @@ export default function PipelineBuilderPage() {
   const [templates, setTemplates] = useState<any[]>([])
 
   useEffect(() => {
-    apiGetBlocks().then((res) => setBlocks(res.blocks || [])).catch(() => setBlocks([]))
+    apiGetBlocks()
+      .then((res) => setBlocks(res.blocks || []))
+      .catch(() => setBlocks([]))
   }, [])
 
   useEffect(() => {
-    apiGetPipelineTemplates().then((res) => setTemplates(res.templates || [])).catch(() => setTemplates([]))
+    apiGetPipelineTemplates()
+      .then((res) => setTemplates(res.templates || []))
+      .catch(() => setTemplates([]))
   }, [])
 
   const onConnect = useCallback(
     (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges]
+    [setEdges],
   )
 
   function addBlockNode(block: BlockDef) {
@@ -86,7 +105,9 @@ export default function PipelineBuilderPage() {
     try {
       const parsed = raw.trim() ? JSON.parse(raw) : {}
       setNodes((nds) =>
-        nds.map((n) => (n.id === selectedNode.id ? { ...n, data: { ...n.data, config: parsed } } : n))
+        nds.map((n) =>
+          n.id === selectedNode.id ? { ...n, data: { ...n.data, config: parsed } } : n,
+        ),
       )
       setSelectedNode({ ...selectedNode, data: { ...selectedNode.data, config: parsed } })
     } catch {
@@ -245,7 +266,9 @@ export default function PipelineBuilderPage() {
       <div className="w-64 border-r border-white/10 bg-bg-elev p-4 space-y-4 overflow-y-auto">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold">MagicBlock Blocks</h2>
-          <Button variant="secondary" onClick={() => setShowTemplates(true)} className="text-xs">Templates</Button>
+          <Button variant="secondary" onClick={() => setShowTemplates(true)} className="text-xs">
+            Templates
+          </Button>
         </div>
         <div className="space-y-2">
           {blocks.map((block) => (
@@ -260,7 +283,9 @@ export default function PipelineBuilderPage() {
           ))}
         </div>
         <div className="pt-2 border-t border-white/10 space-y-2">
-          <Button onClick={() => setShowSaveModal(true)} className="w-full">Save Flow</Button>
+          <Button onClick={() => setShowSaveModal(true)} className="w-full">
+            Save Flow
+          </Button>
           <Button variant="secondary" onClick={handlePlan} className="w-full" disabled={planning}>
             {planning ? 'Planning...' : 'Build Plan'}
           </Button>
@@ -285,7 +310,9 @@ export default function PipelineBuilderPage() {
           <Panel position="top-center">
             {nodes.length === 0 && (
               <Card className="p-3 shadow-2xl">
-                <p className="text-sm text-text-secondary">Add blocks from the left to build your flow.</p>
+                <p className="text-sm text-text-secondary">
+                  Add blocks from the left to build your flow.
+                </p>
               </Card>
             )}
           </Panel>
@@ -298,10 +325,14 @@ export default function PipelineBuilderPage() {
                 <div className="text-sm font-semibold">{selectedNode.data.label}</div>
                 <Badge className="mt-1">{selectedNode.data.blockId}</Badge>
               </div>
-              <button onClick={() => deleteNode(selectedNode.id)} className="text-xs text-red-400">Delete</button>
+              <button onClick={() => deleteNode(selectedNode.id)} className="text-xs text-red-400">
+                Delete
+              </button>
             </div>
             <div className="mt-4">
-              <label className="text-xs font-semibold text-white/70 mb-2 block">Config (JSON)</label>
+              <label className="text-xs font-semibold text-white/70 mb-2 block">
+                Config (JSON)
+              </label>
               <textarea
                 key={selectedNode.id}
                 className="w-full h-48 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white font-mono"
@@ -313,7 +344,9 @@ export default function PipelineBuilderPage() {
         )}
       </div>
 
-      {showSaveModal && <PublishPipelineModal open={showSaveModal} onClose={() => setShowSaveModal(false)} />}
+      {showSaveModal && (
+        <PublishPipelineModal open={showSaveModal} onClose={() => setShowSaveModal(false)} />
+      )}
 
       {showTemplates && (
         <Modal open={showTemplates} onClose={() => setShowTemplates(false)} title="Flow Templates">
@@ -338,7 +371,9 @@ export default function PipelineBuilderPage() {
 
       {showPlanModal && (
         <Modal open={showPlanModal} onClose={() => setShowPlanModal(false)} title="Execution Plan">
-          <pre className="text-xs whitespace-pre-wrap text-white/80">{JSON.stringify(planResult, null, 2)}</pre>
+          <pre className="text-xs whitespace-pre-wrap text-white/80">
+            {JSON.stringify(planResult, null, 2)}
+          </pre>
         </Modal>
       )}
     </div>

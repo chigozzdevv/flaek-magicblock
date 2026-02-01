@@ -20,16 +20,11 @@ export function Modal({ open, onClose, title, description, children }: ModalProp
             <h2 className="text-xl font-semibold">{title}</h2>
             {description && <p className="text-sm text-text-secondary mt-1">{description}</p>}
           </div>
-          <button
-            onClick={onClose}
-            className="ml-4 text-white/50 hover:text-white transition"
-          >
+          <button onClick={onClose} className="ml-4 text-white/50 hover:text-white transition">
             <X size={20} />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-6">
-          {children}
-        </div>
+        <div className="flex-1 overflow-y-auto p-6">{children}</div>
       </div>
     </div>
   )

@@ -19,15 +19,15 @@ export default function Docs() {
               <Clock size={28} className="text-brand-400" />
             </div>
           </div>
-          
+
           <h1 className="text-4xl md:text-6xl font-semibold tracking-tight mb-6">
             Documentation in progress
           </h1>
-          
+
           <p className="text-lg md:text-xl text-white/70 mb-8 max-w-2xl mx-auto">
             Check back later... ETA: 7 days
           </p>
-          
+
           <motion.a
             href="/"
             initial={{ opacity: 0 }}

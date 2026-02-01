@@ -5,7 +5,11 @@ export default function BrandLogo({ className = '' }: { className?: string }) {
   const [idx, setIdx] = useState(0)
   const src = sources[Math.min(idx, sources.length - 1)]
   return (
-    <a href="/" aria-label="Flaek" className={`inline-flex items-center overflow-visible ${className}`}>
+    <a
+      href="/"
+      aria-label="Flaek"
+      className={`inline-flex items-center overflow-visible ${className}`}
+    >
       <img
         src={src}
         alt=""

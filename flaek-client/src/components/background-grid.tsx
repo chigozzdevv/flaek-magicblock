@@ -71,16 +71,17 @@ export default function BackgroundGrid({
 
           const fromA = 0.55 * intensity
           const toA = 0.35 * intensity
-          const style: React.CSSProperties = intensity > 0.02
-            ? {
-                background: `linear-gradient(135deg, rgba(106,79,248,${fromA}) 0%, rgba(22,226,195,${toA}) 100%)`,
-                opacity: Math.min(0.8, 0.08 + intensity * 0.9),
-                transition: 'opacity 120ms linear',
-              }
-            : {
-                opacity: undefined,
-                animationDelay: `${(i % 7) * 0.4}s`,
-              }
+          const style: React.CSSProperties =
+            intensity > 0.02
+              ? {
+                  background: `linear-gradient(135deg, rgba(106,79,248,${fromA}) 0%, rgba(22,226,195,${toA}) 100%)`,
+                  opacity: Math.min(0.8, 0.08 + intensity * 0.9),
+                  transition: 'opacity 120ms linear',
+                }
+              : {
+                  opacity: undefined,
+                  animationDelay: `${(i % 7) * 0.4}s`,
+                }
 
           return (
             <div key={i} className="relative pointer-events-none">

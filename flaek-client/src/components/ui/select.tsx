@@ -8,11 +8,7 @@ type SelectProps = {
 export function Select({ label, error, helper, options, className = '', ...props }: SelectProps) {
   return (
     <div className="space-y-1.5">
-      {label && (
-        <label className="block text-sm font-medium text-text-primary">
-          {label}
-        </label>
-      )}
+      {label && <label className="block text-sm font-medium text-text-primary">{label}</label>}
       <select
         className={`w-full rounded-lg border bg-white/[0.03] px-4 py-2.5 text-sm outline-none transition cursor-pointer ${
           error

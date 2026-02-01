@@ -9,4 +9,3 @@ export default function SectionDivider({ className = '' }: { className?: string 
     </div>
   )
 }
-

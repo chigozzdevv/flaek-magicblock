@@ -40,10 +40,11 @@ export default function Navbar() {
   useEffect(() => {
     const sentinel = document.getElementById('nav-sentinel')
     if (sentinel && 'IntersectionObserver' in window) {
-      const obs = new IntersectionObserver(
-        ([entry]) => setScrolled(!entry.isIntersecting),
-        { root: null, rootMargin: `-${navH}px 0px 0px 0px`, threshold: 0 }
-      )
+      const obs = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting), {
+        root: null,
+        rootMargin: `-${navH}px 0px 0px 0px`,
+        threshold: 0,
+      })
       obs.observe(sentinel)
       return () => obs.disconnect()
     } else {
@@ -57,25 +58,40 @@ export default function Navbar() {
   const close = () => setOpen(false)
 
   return (
-    <header ref={headerRef}
+    <header
+      ref={headerRef}
       className={`sticky top-0 z-50 transition-colors ${
-        scrolled ? 'bg-bg-base/60 backdrop-blur shadow-[inset_0_-1px_0_0_var(--color-border)]' : 'bg-transparent'
+        scrolled
+          ? 'bg-bg-base/60 backdrop-blur shadow-[inset_0_-1px_0_0_var(--color-border)]'
+          : 'bg-transparent'
       }`}
     >
       <div className="container-outer h-16 flex items-center justify-between">
         <BrandLogo />
         <nav className="hidden md:flex items-center gap-7 text-sm text-white/80">
-          <a href="/#overview" className="hover:text-white">Overview</a>
-          <a href="/#how-it-works" className="hover:text-white">How it works</a>
-          <a href="/#execution" className="hover:text-white">Execution</a>
-          <a href="/#blocks" className="hover:text-white">Blocks</a>
+          <a href="/#overview" className="hover:text-white">
+            Overview
+          </a>
+          <a href="/#how-it-works" className="hover:text-white">
+            How it works
+          </a>
+          <a href="/#execution" className="hover:text-white">
+            Execution
+          </a>
+          <a href="/#blocks" className="hover:text-white">
+            Blocks
+          </a>
         </nav>
         <div className="flex items-center gap-2">
-          <a href="/signin" onClick={handleSignInClick} className="hidden md:inline text-sm text-white/80 hover:text-white px-3 py-2">
+          <a
+            href="/signin"
+            onClick={handleSignInClick}
+            className="hidden md:inline text-sm text-white/80 hover:text-white px-3 py-2"
+          >
             Sign in
           </a>
           <div className="hidden md:inline-flex">
-            <button 
+            <button
               onClick={handleGetStartedClick}
               className="inline-flex items-center justify-center rounded-full px-5 py-3 text-sm md:text-base font-medium transition border border-white/10 hover:border-white/20"
             >
@@ -96,16 +112,46 @@ export default function Navbar() {
       {open && (
         <div className="md:hidden absolute left-0 right-0 top-16 z-50 bg-bg-base/98 backdrop-blur border-t border-white/10">
           <div className="container-outer py-4 flex flex-col gap-1 text-sm">
-            <a href="/#overview" onClick={close} className="px-1 py-2 text-white/80 hover:text-white">Overview</a>
-            <a href="/#how-it-works" onClick={close} className="px-1 py-2 text-white/80 hover:text-white">How it works</a>
-            <a href="/#execution" onClick={close} className="px-1 py-2 text-white/80 hover:text-white">Execution</a>
-            <a href="/#blocks" onClick={close} className="px-1 py-2 text-white/80 hover:text-white">Blocks</a>
+            <a
+              href="/#overview"
+              onClick={close}
+              className="px-1 py-2 text-white/80 hover:text-white"
+            >
+              Overview
+            </a>
+            <a
+              href="/#how-it-works"
+              onClick={close}
+              className="px-1 py-2 text-white/80 hover:text-white"
+            >
+              How it works
+            </a>
+            <a
+              href="/#execution"
+              onClick={close}
+              className="px-1 py-2 text-white/80 hover:text-white"
+            >
+              Execution
+            </a>
+            <a href="/#blocks" onClick={close} className="px-1 py-2 text-white/80 hover:text-white">
+              Blocks
+            </a>
             <div className="h-px my-2 bg-white/10" />
-            <a href="/signin" onClick={(e) => { handleSignInClick(e); close(); }} className="px-1 py-2 text-white/80 hover:text-white">
+            <a
+              href="/signin"
+              onClick={(e) => {
+                handleSignInClick(e)
+                close()
+              }}
+              className="px-1 py-2 text-white/80 hover:text-white"
+            >
               Sign in
             </a>
-            <button 
-              onClick={(e) => { handleGetStartedClick(e); close(); }}
+            <button
+              onClick={(e) => {
+                handleGetStartedClick(e)
+                close()
+              }}
               className="mt-2 w-full inline-flex items-center justify-center rounded-full px-5 py-3 text-sm md:text-base font-medium transition bg-gradient-to-r from-brand-500 to-brand-600 text-white hover:brightness-110"
             >
               Get started

@@ -14,7 +14,12 @@ const variants: Record<Variant, string> = {
   ghost: 'hover:bg-white/5',
 }
 
-export default function ButtonLink({ href, children, variant = 'primary', className = '' }: ButtonLinkProps) {
+export default function ButtonLink({
+  href,
+  children,
+  variant = 'primary',
+  className = '',
+}: ButtonLinkProps) {
   return (
     <a
       href={href}

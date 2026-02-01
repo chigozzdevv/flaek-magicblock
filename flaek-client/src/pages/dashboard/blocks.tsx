@@ -33,10 +33,11 @@ export default function BlocksPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const filtered = blocks.filter((b) =>
-    b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.id.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = blocks.filter(
+    (b) =>
+      b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.id.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   if (loading) {
@@ -73,7 +74,9 @@ export default function BlocksPage() {
               <Card key={block.id} className="p-4 border border-white/10 bg-white/5">
                 <div className="flex items-center justify-between">
                   <div className="font-semibold">{block.name}</div>
-                  <Badge className={categoryStyles[block.category] || 'bg-white/5'}>{block.category}</Badge>
+                  <Badge className={categoryStyles[block.category] || 'bg-white/5'}>
+                    {block.category}
+                  </Badge>
                 </div>
                 <div className="text-xs text-white/60 mt-2">{block.description}</div>
                 <div className="mt-3 text-[11px] text-white/50">

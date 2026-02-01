@@ -29,13 +29,13 @@ function usePathname() {
 
 function Router() {
   const path = usePathname()
-  
+
   if (path === '/get-started') return <GetStartedPage />
   if (path === '/signin') return <SigninPage />
   if (path === '/forgot-password') return <ForgotPasswordPage />
   if (path === '/reset-password') return <ResetPasswordPage />
   if (path === '/docs') return <DocsPage />
-  
+
   if (path.startsWith('/dashboard')) {
     return (
       <DashboardLayout currentPath={path}>
@@ -50,7 +50,7 @@ function Router() {
       </DashboardLayout>
     )
   }
-  
+
   return <App />
 }
 

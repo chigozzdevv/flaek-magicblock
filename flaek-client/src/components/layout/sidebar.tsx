@@ -1,4 +1,15 @@
-import { LayoutDashboard, Workflow, Package, Briefcase, Blocks, Key, CreditCard, LogOut, Play, Settings as SettingsIcon } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Workflow,
+  Package,
+  Briefcase,
+  Blocks,
+  Key,
+  CreditCard,
+  LogOut,
+  Play,
+  Settings as SettingsIcon,
+} from 'lucide-react'
 import BrandLogo from '@/components/brand-logo'
 import { navigate } from '@/lib/router'
 import { clearToken } from '@/lib/auth'

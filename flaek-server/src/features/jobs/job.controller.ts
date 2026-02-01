@@ -1,10 +1,10 @@
-import { Request, Response } from 'express';
-import { jobService } from '@/features/jobs/job.service';
+import { Request, Response } from 'express'
+import { jobService } from '@/features/jobs/job.service'
 
 async function create(req: Request, res: Response) {
-  const tenantId = (req as any).tenantId as string;
-  const { operation, execution_mode, context } = req.body;
-  const callbackUrl = req.body?.callback_url as string | undefined;
+  const tenantId = (req as any).tenantId as string
+  const { operation, execution_mode, context } = req.body
+  const callbackUrl = req.body?.callback_url as string | undefined
 
   const out = await jobService.createPlan({
     tenantId,
@@ -12,84 +12,84 @@ async function create(req: Request, res: Response) {
     executionMode: execution_mode || 'per',
     context,
     callbackUrl,
-  });
-  res.status(202).json(out);
+  })
+  res.status(202).json(out)
 }
 
 async function list(req: Request, res: Response) {
-  const tenantId = (req as any).tenantId as string;
-  const limitRaw = (req.query.limit as string) || undefined;
-  const cursor = (req.query.cursor as string) || undefined;
-  const sinceRaw = (req.query.since as string) || undefined;
+  const tenantId = (req as any).tenantId as string
+  const limitRaw = (req.query.limit as string) || undefined
+  const cursor = (req.query.cursor as string) || undefined
+  const sinceRaw = (req.query.since as string) || undefined
 
-  let limit: number | undefined = undefined;
+  let limit: number | undefined = undefined
   if (limitRaw) {
-    const n = parseInt(limitRaw, 10);
+    const n = parseInt(limitRaw, 10)
     if (!isNaN(n) && n > 0) {
       // cap limit to prevent abuse
-      limit = Math.min(n, 200);
+      limit = Math.min(n, 200)
     }
   }
 
-  let since: Date | undefined = undefined;
+  let since: Date | undefined = undefined
   if (sinceRaw) {
-    const d = new Date(sinceRaw);
+    const d = new Date(sinceRaw)
     if (!isNaN(d.getTime())) {
-      since = d;
+      since = d
     }
   }
 
-  const out = await jobService.list(tenantId, { limit, cursor, since });
-  res.json(out);
+  const out = await jobService.list(tenantId, { limit, cursor, since })
+  res.json(out)
 }
 
 async function get(req: Request, res: Response) {
-  const tenantId = (req as any).tenantId as string;
-  const { jobId } = req.params;
-  const out = await jobService.get(tenantId, jobId);
-  res.json(out);
+  const tenantId = (req as any).tenantId as string
+  const { jobId } = req.params
+  const out = await jobService.get(tenantId, jobId)
+  res.json(out)
 }
 
 async function submit(req: Request, res: Response) {
-  const tenantId = (req as any).tenantId as string;
-  const { jobId } = req.params;
-  const { tx_signatures, result } = req.body || {};
+  const tenantId = (req as any).tenantId as string
+  const { jobId } = req.params
+  const { tx_signatures, result } = req.body || {}
   if (!Array.isArray(tx_signatures) || tx_signatures.length === 0) {
-    res.status(400).json({ code: 'invalid_body', message: 'tx_signatures_required' });
-    return;
+    res.status(400).json({ code: 'invalid_body', message: 'tx_signatures_required' })
+    return
   }
-  const out = await jobService.submit(tenantId, jobId, tx_signatures, result);
-  res.json(out);
+  const out = await jobService.submit(tenantId, jobId, tx_signatures, result)
+  res.json(out)
 }
 
 async function complete(req: Request, res: Response) {
-  const tenantId = (req as any).tenantId as string;
-  const { jobId } = req.params;
-  const { result } = req.body || {};
-  const out = await jobService.complete(tenantId, jobId, result);
-  res.json(out);
+  const tenantId = (req as any).tenantId as string
+  const { jobId } = req.params
+  const { result } = req.body || {}
+  const out = await jobService.complete(tenantId, jobId, result)
+  res.json(out)
 }
 
 async function cancel(req: Request, res: Response) {
-  const tenantId = (req as any).tenantId as string;
-  const { jobId } = req.params;
-  await jobService.cancel(tenantId, jobId);
-  res.status(202).json({ job_id: jobId, status: 'cancelled' });
+  const tenantId = (req as any).tenantId as string
+  const { jobId } = req.params
+  await jobService.cancel(tenantId, jobId)
+  res.status(202).json({ job_id: jobId, status: 'cancelled' })
 }
 
 async function appendLogs(req: Request, res: Response) {
-  const tenantId = (req as any).tenantId as string;
-  const { jobId } = req.params;
-  const { logs } = req.body || {};
+  const tenantId = (req as any).tenantId as string
+  const { jobId } = req.params
+  const { logs } = req.body || {}
   const normalized = Array.isArray(logs)
     ? logs.map((log: any) => ({
         message: log.message,
         level: log.level,
         ts: log.ts ? new Date(log.ts) : undefined,
       }))
-    : [];
-  const out = await jobService.appendLogs(tenantId, jobId, normalized);
-  res.json(out);
+    : []
+  const out = await jobService.appendLogs(tenantId, jobId, normalized)
+  res.json(out)
 }
 
-export const jobController = { create, list, get, submit, complete, cancel, appendLogs };
+export const jobController = { create, list, get, submit, complete, cancel, appendLogs }

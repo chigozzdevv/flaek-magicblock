@@ -26,7 +26,7 @@ export default function CreditsPage() {
     try {
       const [creditsData, ledger] = await Promise.all([
         apiGetCredits(),
-        apiGetCreditsLedger({ limit: 50 })
+        apiGetCreditsLedger({ limit: 50 }),
       ])
       setBalance(creditsData.balance)
       // Compute running balance for display from newest to oldest
@@ -34,14 +34,16 @@ export default function CreditsPage() {
       const items = ledger.items.map((i) => {
         const delta = (i.delta_cents || 0) / 100
         const reason = i.reason || ''
-        const type: CreditHistory['type'] = delta >= 0
-          ? (reason === 'topup' ? 'purchase' : 'bonus')
-          : 'usage'
-        const description = reason === 'topup'
-          ? 'Top-up'
-          : reason === 'job_execution'
-            ? (i.job_id ? `Job execution (${i.job_id})` : 'Job execution')
-            : reason || 'Adjustment'
+        const type: CreditHistory['type'] =
+          delta >= 0 ? (reason === 'topup' ? 'purchase' : 'bonus') : 'usage'
+        const description =
+          reason === 'topup'
+            ? 'Top-up'
+            : reason === 'job_execution'
+              ? i.job_id
+                ? `Job execution (${i.job_id})`
+                : 'Job execution'
+              : reason || 'Adjustment'
         const tx: CreditHistory = {
           transaction_id: i.id,
           amount: delta,
@@ -69,9 +71,15 @@ export default function CreditsPage() {
     )
   }
 
-  const last30Days = history.filter(t => new Date(t.created_at) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
-  const totalSpent = last30Days.filter(t => t.type === 'usage').reduce((sum, t) => sum + Math.abs(t.amount), 0)
-  const totalPurchased = last30Days.filter(t => t.type === 'purchase').reduce((sum, t) => sum + t.amount, 0)
+  const last30Days = history.filter(
+    (t) => new Date(t.created_at) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+  )
+  const totalSpent = last30Days
+    .filter((t) => t.type === 'usage')
+    .reduce((sum, t) => sum + Math.abs(t.amount), 0)
+  const totalPurchased = last30Days
+    .filter((t) => t.type === 'purchase')
+    .reduce((sum, t) => sum + t.amount, 0)
 
   return (
     <div className="flex flex-col h-full">
@@ -103,7 +111,9 @@ export default function CreditsPage() {
               <h3 className="text-sm font-semibold text-white/70">Last 30 Days Purchased</h3>
               <TrendingUp className="w-5 h-5 text-green-400" />
             </div>
-            <div className="text-3xl font-bold text-green-400">{totalPurchased.toLocaleString()}</div>
+            <div className="text-3xl font-bold text-green-400">
+              {totalPurchased.toLocaleString()}
+            </div>
           </Card>
         </div>
 
@@ -114,10 +124,17 @@ export default function CreditsPage() {
           ) : (
             <div className="space-y-3">
               {history.map((tx) => (
-                <div key={tx.transaction_id} className="flex items-center justify-between p-3 bg-white/[0.02] rounded-lg border border-white/5">
+                <div
+                  key={tx.transaction_id}
+                  className="flex items-center justify-between p-3 bg-white/[0.02] rounded-lg border border-white/5"
+                >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <Badge variant={tx.type === 'purchase' || tx.type === 'bonus' ? 'success' : 'default'}>
+                      <Badge
+                        variant={
+                          tx.type === 'purchase' || tx.type === 'bonus' ? 'success' : 'default'
+                        }
+                      >
                         {tx.type}
                       </Badge>
                       <span className="text-sm font-medium">{tx.description}</span>
@@ -127,8 +144,11 @@ export default function CreditsPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className={`text-lg font-bold ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString()}
+                    <div
+                      className={`text-lg font-bold ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'}`}
+                    >
+                      {tx.amount > 0 ? '+' : ''}
+                      {tx.amount.toLocaleString()}
                     </div>
                     <div className="text-xs text-white/50">
                       Balance: {tx.balance_after.toLocaleString()}

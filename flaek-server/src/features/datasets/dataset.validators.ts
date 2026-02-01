@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const createDatasetSchema = z.object({
   body: z.object({
@@ -6,4 +6,4 @@ export const createDatasetSchema = z.object({
     schema: z.any(),
     retention_days: z.number().optional(),
   }),
-});
+})

@@ -58,7 +58,9 @@ export default function JobsPage() {
   const [walletPubkey, setWalletPubkey] = useState<string | null>(null)
   const [executing, setExecuting] = useState(false)
   const [execLogs, setExecLogs] = useState<string[]>([])
-  const [serverLogs, setServerLogs] = useState<Array<{ ts?: string; level?: string; message: string }>>([])
+  const [serverLogs, setServerLogs] = useState<
+    Array<{ ts?: string; level?: string; message: string }>
+  >([])
   const [execError, setExecError] = useState('')
 
   useEffect(() => {
@@ -102,9 +104,7 @@ export default function JobsPage() {
 
     socket.on('connect', () => setSocketConnected(true))
     socket.on('job:update', (data: any) => {
-      setJobs((prev) =>
-        prev.map((job) => (job.job_id === data.job_id ? { ...job, ...data } : job))
-      )
+      setJobs((prev) => prev.map((job) => (job.job_id === data.job_id ? { ...job, ...data } : job)))
       setSelectedJob((prev: any) => {
         if (!prev || prev.job_id !== data.job_id) return prev
         if (data?.logs?.length) {
@@ -163,7 +163,10 @@ export default function JobsPage() {
 
   async function submitJob() {
     if (!selectedJob) return
-    const sigs = txInput.split('\n').map((s) => s.trim()).filter(Boolean)
+    const sigs = txInput
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean)
     if (!sigs.length) return
     setSubmitting(true)
     try {
@@ -256,9 +259,10 @@ export default function JobsPage() {
     await loadJobs()
   }
 
-  const filteredJobs = jobs.filter((job) =>
-    job.job_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    job.operation_id.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredJobs = jobs.filter(
+    (job) =>
+      job.job_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.operation_id.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   if (loading) {
@@ -304,7 +308,9 @@ export default function JobsPage() {
               <Card key={job.job_id} className="p-4 border border-white/10 bg-white/5">
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-white/60">Run</div>
-                  <Badge variant={config?.variant || 'default'}>{config?.label || job.status}</Badge>
+                  <Badge variant={config?.variant || 'default'}>
+                    {config?.label || job.status}
+                  </Badge>
                 </div>
                 <div className="mt-2 font-mono text-xs break-all text-white/80">{job.job_id}</div>
                 <div className="mt-2 text-xs text-white/60">Operation: {job.operation_id}</div>
@@ -313,7 +319,11 @@ export default function JobsPage() {
                     <Icon size={14} />
                     Details
                   </Button>
-                  <Button variant="ghost" onClick={() => cancelJob(job.job_id)} className="px-3 py-2 text-xs">
+                  <Button
+                    variant="ghost"
+                    onClick={() => cancelJob(job.job_id)}
+                    className="px-3 py-2 text-xs"
+                  >
                     Cancel
                   </Button>
                 </div>
@@ -335,7 +345,9 @@ export default function JobsPage() {
               <div className="text-xs text-white/60 mb-2">Wallet</div>
               <div className="flex items-center justify-between gap-3">
                 <div className="text-xs font-mono text-white/70">
-                  {walletPubkey ? `${walletPubkey.slice(0, 6)}...${walletPubkey.slice(-4)}` : 'Not connected'}
+                  {walletPubkey
+                    ? `${walletPubkey.slice(0, 6)}...${walletPubkey.slice(-4)}`
+                    : 'Not connected'}
                 </div>
                 <Button variant="secondary" onClick={connectWallet} className="text-xs">
                   {walletPubkey ? 'Reconnect' : 'Connect Wallet'}
@@ -362,9 +374,7 @@ export default function JobsPage() {
                   value={selectedValidator}
                   onChange={(e) => setSelectedValidator(e.target.value)}
                 >
-                  {validators.length === 0 && (
-                    <option value="">No validators loaded</option>
-                  )}
+                  {validators.length === 0 && <option value="">No validators loaded</option>}
                   {validators.map((v) => (
                     <option key={v.pubkey} value={v.pubkey}>
                       {v.name}
@@ -392,8 +402,8 @@ export default function JobsPage() {
                 {executing ? 'Executing...' : 'Execute Plan with Wallet'}
               </Button>
               {execError && <div className="text-xs text-red-400">{execError}</div>}
-            {(serverLogs.length > 0 || execLogs.length > 0) && (
-              <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg">
+              {(serverLogs.length > 0 || execLogs.length > 0) && (
+                <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg">
                   {[
                     ...serverLogs.map((log) => {
                       const ts = log.ts ? new Date(log.ts).toLocaleTimeString() : ''
@@ -402,8 +412,8 @@ export default function JobsPage() {
                     }),
                     ...execLogs,
                   ].join('\n')}
-              </pre>
-            )}
+                </pre>
+              )}
             </div>
 
             <div className="text-xs text-white/60">Plan</div>

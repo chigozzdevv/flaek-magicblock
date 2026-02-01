@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const createOperationSchema = z.object({
   body: z.object({
@@ -13,4 +13,4 @@ export const createOperationSchema = z.object({
     datasetId: z.string().optional(),
     retentionPolicy: z.any().optional(),
   }),
-});
+})

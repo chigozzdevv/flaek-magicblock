@@ -34,7 +34,6 @@ export default function OperationsPage() {
   const [snippetError, setSnippetError] = useState('')
   const [showEdit, setShowEdit] = useState(false)
   const [editingOp, setEditingOp] = useState<any>(null)
-  
 
   useEffect(() => {
     loadOperations()
@@ -97,16 +96,20 @@ export default function OperationsPage() {
       return
     }
     try {
-      const res = await apiCreateJob({ operation: operationId, execution_mode: mode as 'per' | 'er' })
+      const res = await apiCreateJob({
+        operation: operationId,
+        execution_mode: mode as 'per' | 'er',
+      })
       navigate(`/dashboard/jobs?job=${res.job_id}`)
     } catch (err: any) {
       alert(err.message || 'Failed to create run')
     }
   }
 
-  const filteredOps = operations.filter((op) =>
-    op.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    op.version.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredOps = operations.filter(
+    (op) =>
+      op.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      op.version.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   if (loading) {
@@ -148,9 +151,7 @@ export default function OperationsPage() {
           <Card className="p-12 text-center">
             <Box className="w-12 h-12 mx-auto mb-4 text-white/20" />
             <h3 className="text-lg font-semibold mb-2">No Flows Yet</h3>
-            <p className="text-sm text-white/60 mb-6">
-              Create your first flow by building a graph
-            </p>
+            <p className="text-sm text-white/60 mb-6">Create your first flow by building a graph</p>
             <Button onClick={() => navigate('/dashboard/pipelines')}>
               <Plus size={16} />
               Create Flow
@@ -172,7 +173,9 @@ export default function OperationsPage() {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-white/50">Pipeline Hash:</span>
-                        <span className="ml-2 font-mono text-xs">{op.pipeline_hash.slice(0, 16)}...</span>
+                        <span className="ml-2 font-mono text-xs">
+                          {op.pipeline_hash.slice(0, 16)}...
+                        </span>
                       </div>
                       <div>
                         <span className="text-white/50">Created:</span>
@@ -276,7 +279,9 @@ export default function OperationsPage() {
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-white/70 mb-1 block">Pipeline Hash</label>
+              <label className="text-xs font-semibold text-white/70 mb-1 block">
+                Pipeline Hash
+              </label>
               <div className="text-xs font-mono bg-white/5 p-2 rounded border border-white/10 break-all">
                 {selectedOp.pipeline_hash}
               </div>
@@ -310,9 +315,7 @@ export default function OperationsPage() {
                   Load Snippet
                 </Button>
               </div>
-              {snippetError && (
-                <div className="text-xs text-red-400">{snippetError}</div>
-              )}
+              {snippetError && <div className="text-xs text-red-400">{snippetError}</div>}
               {snippet && (
                 <div className="space-y-3">
                   <div>
@@ -354,7 +357,17 @@ export default function OperationsPage() {
 
 // RunJobModal removed in favor of the Playground
 
-function EditOperationModal({ operation, open, onClose, onUpdate }: { operation: any; open: boolean; onClose: () => void; onUpdate: () => void }) {
+function EditOperationModal({
+  operation,
+  open,
+  onClose,
+  onUpdate,
+}: {
+  operation: any
+  open: boolean
+  onClose: () => void
+  onUpdate: () => void
+}) {
   const [name, setName] = useState(operation.name)
   const [version, setVersion] = useState(operation.version)
   const [loading, setLoading] = useState(false)
@@ -371,9 +384,9 @@ function EditOperationModal({ operation, open, onClose, onUpdate }: { operation:
     setError('')
 
     try {
-      await apiUpdateOperation(operation.operation_id, { 
-        name: name.trim(), 
-        version: version.trim() 
+      await apiUpdateOperation(operation.operation_id, {
+        name: name.trim(),
+        version: version.trim(),
       })
       onUpdate()
       onClose()

@@ -22,7 +22,10 @@ const FEATURES = [
 
 export default function GlobalCompliance() {
   return (
-    <section id="execution" className="section-demo relative overflow-hidden scroll-mt-24 md:scroll-mt-28">
+    <section
+      id="execution"
+      className="section-demo relative overflow-hidden scroll-mt-24 md:scroll-mt-28"
+    >
       <div className="container-outer pt-20 md:pt-32">
         <SectionDivider />
       </div>
@@ -55,15 +58,24 @@ export default function GlobalCompliance() {
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
                 </span>
                 <span className="absolute top-[32%] right-[28%] flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" style={{ animationDelay: '0.7s' }}></span>
+                  <span
+                    className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"
+                    style={{ animationDelay: '0.7s' }}
+                  ></span>
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
                 </span>
                 <span className="absolute bottom-[38%] left-[46%] flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" style={{ animationDelay: '1.4s' }}></span>
+                  <span
+                    className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"
+                    style={{ animationDelay: '1.4s' }}
+                  ></span>
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
                 </span>
                 <span className="absolute bottom-[28%] right-[15%] flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" style={{ animationDelay: '2.1s' }}></span>
+                  <span
+                    className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
+                    style={{ animationDelay: '2.1s' }}
+                  ></span>
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                 </span>
               </div>
@@ -82,7 +94,8 @@ export default function GlobalCompliance() {
               Shared program flows for fast state changes
             </h2>
             <p className="mt-6 text-base md:text-lg text-white/60 leading-relaxed">
-              Compose ER/PER flows on Flaek’s shared program and execute state updates on validators close to your users.
+              Compose ER/PER flows on Flaek’s shared program and execute state updates on validators
+              close to your users.
             </p>
 
             <div className="mt-10 space-y-6">
@@ -103,9 +116,7 @@ export default function GlobalCompliance() {
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium text-white/90">
-                        {feature.title}
-                      </h3>
+                      <h3 className="text-lg font-medium text-white/90">{feature.title}</h3>
                       <p className="mt-1.5 text-[15px] text-white/60 leading-relaxed">
                         {feature.description}
                       </p>

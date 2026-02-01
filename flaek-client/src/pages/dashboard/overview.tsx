@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Database, Package, Briefcase, TrendingUp, Plus, Zap, Workflow, Loader2 } from 'lucide-react'
+import {
+  Database,
+  Package,
+  Briefcase,
+  TrendingUp,
+  Plus,
+  Zap,
+  Workflow,
+  Loader2,
+} from 'lucide-react'
 import { navigate } from '@/lib/router'
 import { apiGetContexts, apiGetOperations, apiGetJobs } from '@/lib/api'
 
@@ -32,7 +41,8 @@ export default function OverviewPage() {
       let allJobs = [...firstPage.items]
       let cursor = firstPage.next_cursor
       let safety = 0
-      while (cursor && safety < 5) { // cap at 5 extra pages (max ~600 jobs)
+      while (cursor && safety < 5) {
+        // cap at 5 extra pages (max ~600 jobs)
         const page = await apiGetJobs({ limit: 100, cursor, since })
         allJobs = allJobs.concat(page.items)
         cursor = page.next_cursor
@@ -40,9 +50,8 @@ export default function OverviewPage() {
       }
 
       const completedJobs = allJobs.filter((j: any) => j.status === 'completed').length
-      const successRate = allJobs.length > 0 
-        ? Math.round((completedJobs / allJobs.length) * 100) 
-        : 0
+      const successRate =
+        allJobs.length > 0 ? Math.round((completedJobs / allJobs.length) * 100) : 0
 
       setStats({
         jobsCount: allJobs.length,
@@ -70,7 +79,9 @@ export default function OverviewPage() {
     <div className="p-8 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-2">Welcome back</h1>
-        <p className="text-text-secondary">Build permissioned flows on MagicBlock ER/PER with verifiable access control.</p>
+        <p className="text-text-secondary">
+          Build permissioned flows on MagicBlock ER/PER with verifiable access control.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -177,9 +188,7 @@ function JobRow({ job }: { job: any }) {
           <span className="text-sm font-medium truncate">{job.job_id}</span>
           <Badge variant={statusVariant}>{job.status}</Badge>
         </div>
-        <div className="text-xs text-white/50">
-          {new Date(job.created_at).toLocaleString()}
-        </div>
+        <div className="text-xs text-white/50">{new Date(job.created_at).toLocaleString()}</div>
       </div>
     </button>
   )
@@ -197,7 +206,9 @@ function StatsCard({ icon: Icon, label, value, subtitle, color }: StatsCardProps
   return (
     <Card className="hover:border-white/20 transition">
       <div className="flex items-start justify-between mb-3">
-        <div className={`w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center ${color}`}>
+        <div
+          className={`w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center ${color}`}
+        >
           <Icon size={20} />
         </div>
       </div>
@@ -237,16 +248,20 @@ type ChecklistItemProps = {
 function ChecklistItem({ completed, text }: ChecklistItemProps) {
   return (
     <div className="flex items-center gap-3">
-      <div className={`w-5 h-5 rounded border flex items-center justify-center ${
-        completed ? 'bg-brand-500 border-brand-500' : 'border-white/20'
-      }`}>
+      <div
+        className={`w-5 h-5 rounded border flex items-center justify-center ${
+          completed ? 'bg-brand-500 border-brand-500' : 'border-white/20'
+        }`}
+      >
         {completed && (
           <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
           </svg>
         )}
       </div>
-      <span className={completed ? 'text-white/50 line-through' : 'text-text-secondary'}>{text}</span>
+      <span className={completed ? 'text-white/50 line-through' : 'text-text-secondary'}>
+        {text}
+      </span>
     </div>
   )
 }

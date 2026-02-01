@@ -57,7 +57,10 @@ export type WalletProvider = {
   disconnect?: () => Promise<void>
   signMessage?: (message: Uint8Array) => Promise<Uint8Array | { signature: Uint8Array }>
   signTransaction?: (transaction: Transaction) => Promise<Transaction>
-  signAndSendTransaction?: (transaction: Transaction, options?: any) => Promise<{ signature: string } | string>
+  signAndSendTransaction?: (
+    transaction: Transaction,
+    options?: any,
+  ) => Promise<{ signature: string } | string>
 }
 
 export type ExecutePlanOptions = {
@@ -192,13 +195,13 @@ function buildInstructionFromStep(
 
   switch (step.blockId) {
     case 'mb_create_permission': {
-      const permissionedAccount = parsePubkey(resolveInput(inputs.permissioned_account, ctx.walletPubkey), 'permissioned_account')
+      const permissionedAccount = parsePubkey(
+        resolveInput(inputs.permissioned_account, ctx.walletPubkey),
+        'permissioned_account',
+      )
       const payer = parsePubkey(resolveInput(inputs.payer, ctx.walletPubkey), 'payer')
       const members = parseMembers(inputs.members, ctx.walletPubkey)
-      return createCreatePermissionInstruction(
-        { permissionedAccount, payer },
-        { members },
-      )
+      return createCreatePermissionInstruction({ permissionedAccount, payer }, { members })
     }
     case 'mb_update_permission': {
       const authority = parsePubkeySigner(
@@ -212,10 +215,7 @@ function buildInstructionFromStep(
         ctx.walletPubkey,
       )
       const members = parseMembers(inputs.members, ctx.walletPubkey)
-      return createUpdatePermissionInstruction(
-        { authority, permissionedAccount },
-        { members },
-      )
+      return createUpdatePermissionInstruction({ authority, permissionedAccount }, { members })
     }
     case 'mb_delegate_permission': {
       const payer = parsePubkey(resolveInput(inputs.payer, ctx.walletPubkey), 'payer')
@@ -229,7 +229,9 @@ function buildInstructionFromStep(
         false,
         ctx.walletPubkey,
       )
-      const ownerProgram = inputs.owner_program ? parsePubkey(inputs.owner_program, 'owner_program') : undefined
+      const ownerProgram = inputs.owner_program
+        ? parsePubkey(inputs.owner_program, 'owner_program')
+        : undefined
       const validator = parseOptionalPubkey(inputs.validator ?? ctx.validator)
       return createDelegatePermissionInstruction(
         {
@@ -285,7 +287,9 @@ function buildInstructionFromStep(
     case 'flaek_create_permission': {
       const programId = parsePubkey(ctx.config.flaek_program_id, 'flaek_program_id')
       const owner = parsePubkey(resolveInput(inputs.owner ?? '$wallet', ctx.walletPubkey), 'owner')
-      const nameHash = inputs.name_hash ? parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash') : null
+      const nameHash = inputs.name_hash
+        ? parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash')
+        : null
       const permissionedAccount = resolveStatePda(programId, owner, nameHash)
       const permission = permissionPdaFromAccount(permissionedAccount)
       const payer = parsePubkey(resolveInput(inputs.payer ?? '$wallet', ctx.walletPubkey), 'payer')
@@ -301,7 +305,11 @@ function buildInstructionFromStep(
         { pubkey: permissionedAccount, isWritable: false, isSigner: false },
         { pubkey: permission, isWritable: true, isSigner: false },
         { pubkey: payer, isWritable: true, isSigner: true },
-        { pubkey: parsePubkey(ctx.config.permission_program_id, 'permission_program_id'), isWritable: false, isSigner: false },
+        {
+          pubkey: parsePubkey(ctx.config.permission_program_id, 'permission_program_id'),
+          isWritable: false,
+          isSigner: false,
+        },
         { pubkey: SystemProgram.programId, isWritable: false, isSigner: false },
       ]
       return new TransactionInstruction({ programId, keys, data: ixData })
@@ -309,10 +317,15 @@ function buildInstructionFromStep(
     case 'flaek_update_permission': {
       const programId = parsePubkey(ctx.config.flaek_program_id, 'flaek_program_id')
       const owner = parsePubkey(resolveInput(inputs.owner ?? '$wallet', ctx.walletPubkey), 'owner')
-      const nameHash = inputs.name_hash ? parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash') : null
+      const nameHash = inputs.name_hash
+        ? parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash')
+        : null
       const permissionedAccount = resolveStatePda(programId, owner, nameHash)
       const permission = permissionPdaFromAccount(permissionedAccount)
-      const authority = parsePubkey(resolveInput(inputs.authority ?? '$wallet', ctx.walletPubkey), 'authority')
+      const authority = parsePubkey(
+        resolveInput(inputs.authority ?? '$wallet', ctx.walletPubkey),
+        'authority',
+      )
       const members = parseMembers(inputs.members, ctx.walletPubkey)
       const accountType = serializeAccountType(owner, nameHash)
       const membersArgs = serializeMembersArgs(members)
@@ -325,17 +338,26 @@ function buildInstructionFromStep(
         { pubkey: permissionedAccount, isWritable: false, isSigner: false },
         { pubkey: permission, isWritable: true, isSigner: false },
         { pubkey: authority, isWritable: true, isSigner: true },
-        { pubkey: parsePubkey(ctx.config.permission_program_id, 'permission_program_id'), isWritable: false, isSigner: false },
+        {
+          pubkey: parsePubkey(ctx.config.permission_program_id, 'permission_program_id'),
+          isWritable: false,
+          isSigner: false,
+        },
       ]
       return new TransactionInstruction({ programId, keys, data: ixData })
     }
     case 'flaek_commit_permission': {
       const programId = parsePubkey(ctx.config.flaek_program_id, 'flaek_program_id')
       const owner = parsePubkey(resolveInput(inputs.owner ?? '$wallet', ctx.walletPubkey), 'owner')
-      const nameHash = inputs.name_hash ? parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash') : null
+      const nameHash = inputs.name_hash
+        ? parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash')
+        : null
       const permissionedAccount = resolveStatePda(programId, owner, nameHash)
       const permission = permissionPdaFromAccount(permissionedAccount)
-      const authority = parsePubkey(resolveInput(inputs.authority ?? '$wallet', ctx.walletPubkey), 'authority')
+      const authority = parsePubkey(
+        resolveInput(inputs.authority ?? '$wallet', ctx.walletPubkey),
+        'authority',
+      )
       const accountType = serializeAccountType(owner, nameHash)
       const ixData = Buffer.concat([
         Buffer.from([173, 8, 171, 138, 163, 171, 62, 223]),
@@ -345,42 +367,85 @@ function buildInstructionFromStep(
         { pubkey: permissionedAccount, isWritable: false, isSigner: false },
         { pubkey: permission, isWritable: true, isSigner: false },
         { pubkey: authority, isWritable: true, isSigner: true },
-        { pubkey: parsePubkey(ctx.config.permission_program_id, 'permission_program_id'), isWritable: false, isSigner: false },
-        { pubkey: parsePubkey(ctx.config.magic_program_id ?? 'Magic11111111111111111111111111111111111111', 'magic_program_id'), isWritable: false, isSigner: false },
-        { pubkey: parsePubkey(ctx.config.magic_context_id ?? 'MagicContext1111111111111111111111111111111', 'magic_context_id'), isWritable: true, isSigner: false },
+        {
+          pubkey: parsePubkey(ctx.config.permission_program_id, 'permission_program_id'),
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: parsePubkey(
+            ctx.config.magic_program_id ?? 'Magic11111111111111111111111111111111111111',
+            'magic_program_id',
+          ),
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: parsePubkey(
+            ctx.config.magic_context_id ?? 'MagicContext1111111111111111111111111111111',
+            'magic_context_id',
+          ),
+          isWritable: true,
+          isSigner: false,
+        },
       ]
       return new TransactionInstruction({ programId, keys, data: ixData })
     }
     case 'flaek_commit_undelegate_permission': {
       const programId = parsePubkey(ctx.config.flaek_program_id, 'flaek_program_id')
       const owner = parsePubkey(resolveInput(inputs.owner ?? '$wallet', ctx.walletPubkey), 'owner')
-      const nameHash = inputs.name_hash ? parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash') : null
+      const nameHash = inputs.name_hash
+        ? parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash')
+        : null
       const permissionedAccount = resolveStatePda(programId, owner, nameHash)
       const permission = permissionPdaFromAccount(permissionedAccount)
-      const authority = parsePubkey(resolveInput(inputs.authority ?? '$wallet', ctx.walletPubkey), 'authority')
+      const authority = parsePubkey(
+        resolveInput(inputs.authority ?? '$wallet', ctx.walletPubkey),
+        'authority',
+      )
       const accountType = serializeAccountType(owner, nameHash)
-      const ixData = Buffer.concat([
-        Buffer.from([67, 87, 223, 139, 187, 5, 93, 241]),
-        accountType,
-      ])
+      const ixData = Buffer.concat([Buffer.from([67, 87, 223, 139, 187, 5, 93, 241]), accountType])
       const keys = [
         { pubkey: permissionedAccount, isWritable: false, isSigner: false },
         { pubkey: permission, isWritable: true, isSigner: false },
         { pubkey: authority, isWritable: true, isSigner: true },
-        { pubkey: parsePubkey(ctx.config.permission_program_id, 'permission_program_id'), isWritable: false, isSigner: false },
-        { pubkey: parsePubkey(ctx.config.magic_program_id ?? 'Magic11111111111111111111111111111111111111', 'magic_program_id'), isWritable: false, isSigner: false },
-        { pubkey: parsePubkey(ctx.config.magic_context_id ?? 'MagicContext1111111111111111111111111111111', 'magic_context_id'), isWritable: true, isSigner: false },
+        {
+          pubkey: parsePubkey(ctx.config.permission_program_id, 'permission_program_id'),
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: parsePubkey(
+            ctx.config.magic_program_id ?? 'Magic11111111111111111111111111111111111111',
+            'magic_program_id',
+          ),
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: parsePubkey(
+            ctx.config.magic_context_id ?? 'MagicContext1111111111111111111111111111111',
+            'magic_context_id',
+          ),
+          isWritable: true,
+          isSigner: false,
+        },
       ]
       return new TransactionInstruction({ programId, keys, data: ixData })
     }
     case 'flaek_close_permission': {
       const programId = parsePubkey(ctx.config.flaek_program_id, 'flaek_program_id')
       const owner = parsePubkey(resolveInput(inputs.owner ?? '$wallet', ctx.walletPubkey), 'owner')
-      const nameHash = inputs.name_hash ? parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash') : null
+      const nameHash = inputs.name_hash
+        ? parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash')
+        : null
       const permissionedAccount = resolveStatePda(programId, owner, nameHash)
       const permission = permissionPdaFromAccount(permissionedAccount)
       const payer = parsePubkey(resolveInput(inputs.payer ?? '$wallet', ctx.walletPubkey), 'payer')
-      const authority = parsePubkey(resolveInput(inputs.authority ?? '$wallet', ctx.walletPubkey), 'authority')
+      const authority = parsePubkey(
+        resolveInput(inputs.authority ?? '$wallet', ctx.walletPubkey),
+        'authority',
+      )
       const accountType = serializeAccountType(owner, nameHash)
       const ixData = Buffer.concat([
         Buffer.from([17, 241, 212, 43, 238, 201, 203, 210]),
@@ -391,7 +456,11 @@ function buildInstructionFromStep(
         { pubkey: permission, isWritable: true, isSigner: false },
         { pubkey: payer, isWritable: true, isSigner: true },
         { pubkey: authority, isWritable: true, isSigner: true },
-        { pubkey: parsePubkey(ctx.config.permission_program_id, 'permission_program_id'), isWritable: false, isSigner: false },
+        {
+          pubkey: parsePubkey(ctx.config.permission_program_id, 'permission_program_id'),
+          isWritable: false,
+          isSigner: false,
+        },
       ]
       return new TransactionInstruction({ programId, keys, data: ixData })
     }
@@ -440,17 +509,26 @@ function buildInstructionFromStep(
     }
     case 'mb_magic_commit': {
       const payer = parsePubkey(resolveInput(inputs.payer, ctx.walletPubkey), 'payer')
-      const accounts = parsePubkeyList(inputs.accounts ?? inputs.accounts_to_commit, ctx.walletPubkey)
+      const accounts = parsePubkeyList(
+        inputs.accounts ?? inputs.accounts_to_commit,
+        ctx.walletPubkey,
+      )
       return createCommitInstruction(payer, accounts)
     }
     case 'mb_magic_commit_undelegate': {
       const payer = parsePubkey(resolveInput(inputs.payer, ctx.walletPubkey), 'payer')
-      const accounts = parsePubkeyList(inputs.accounts ?? inputs.accounts_to_commit, ctx.walletPubkey)
+      const accounts = parsePubkeyList(
+        inputs.accounts ?? inputs.accounts_to_commit,
+        ctx.walletPubkey,
+      )
       return createCommitAndUndelegateInstruction(payer, accounts)
     }
     case 'mb_topup_escrow': {
       const escrow = parsePubkey(inputs.escrow, 'escrow')
-      const escrowAuthority = parsePubkey(resolveInput(inputs.escrow_authority, ctx.walletPubkey), 'escrow_authority')
+      const escrowAuthority = parsePubkey(
+        resolveInput(inputs.escrow_authority, ctx.walletPubkey),
+        'escrow_authority',
+      )
       const payer = parsePubkey(resolveInput(inputs.payer, ctx.walletPubkey), 'payer')
       const amount = parseRequiredNumber(inputs.amount, 'amount')
       const index = parseOptionalNumber(inputs.index)
@@ -458,7 +536,10 @@ function buildInstructionFromStep(
     }
     case 'mb_close_escrow': {
       const escrow = parsePubkey(inputs.escrow, 'escrow')
-      const escrowAuthority = parsePubkey(resolveInput(inputs.escrow_authority, ctx.walletPubkey), 'escrow_authority')
+      const escrowAuthority = parsePubkey(
+        resolveInput(inputs.escrow_authority, ctx.walletPubkey),
+        'escrow_authority',
+      )
       const index = parseOptionalNumber(inputs.index)
       return createCloseEscrowInstruction(escrow, escrowAuthority, index)
     }
@@ -563,7 +644,10 @@ function buildInstructionFromStep(
     }
     case 'flaek_delegate_state': {
       const programId = parsePubkey(ctx.config.flaek_program_id, 'flaek_program_id')
-      const delegationProgramId = parsePubkey(ctx.config.delegation_program_id, 'delegation_program_id')
+      const delegationProgramId = parsePubkey(
+        ctx.config.delegation_program_id,
+        'delegation_program_id',
+      )
       const owner = parsePubkey(resolveInput(inputs.owner ?? '$wallet', ctx.walletPubkey), 'owner')
       const payer = parsePubkey(
         resolveInput(inputs.payer ?? owner.toBase58(), ctx.walletPubkey),
@@ -632,7 +716,11 @@ function parseOptionalPubkey(value: any): PublicKey | undefined {
   return new PublicKey(value)
 }
 
-function parsePubkeySigner(value: any, defaultSigner: boolean, walletPubkey: PublicKey): [PublicKey, boolean] {
+function parsePubkeySigner(
+  value: any,
+  defaultSigner: boolean,
+  walletPubkey: PublicKey,
+): [PublicKey, boolean] {
   if (Array.isArray(value) && value.length >= 2) {
     return [parsePubkey(resolveInput(value[0], walletPubkey), 'pubkey'), Boolean(value[1])]
   }
@@ -651,13 +739,20 @@ function parseMembers(value: any, walletPubkey: PublicKey): Member[] | null {
     throw new Error('members must be an array')
   }
   return value.map((member) => {
-    const pubkey = parsePubkey(resolveInput(member.pubkey ?? member.key ?? member, walletPubkey), 'member.pubkey')
+    const pubkey = parsePubkey(
+      resolveInput(member.pubkey ?? member.key ?? member, walletPubkey),
+      'member.pubkey',
+    )
     const flags = Number(member.flags ?? member.flag ?? 0)
     return { pubkey, flags }
   })
 }
 
-function resolveStatePda(programId: PublicKey, owner: PublicKey, nameHash: Uint8Array | null): PublicKey {
+function resolveStatePda(
+  programId: PublicKey,
+  owner: PublicKey,
+  nameHash: Uint8Array | null,
+): PublicKey {
   return PublicKey.findProgramAddressSync(
     nameHash
       ? [Buffer.from('state'), owner.toBytes(), Buffer.from(nameHash)]

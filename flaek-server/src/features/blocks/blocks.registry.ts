@@ -1,32 +1,32 @@
 export interface BlockInput {
-  name: string;
-  type: 'pubkey' | 'string' | 'number' | 'bool' | 'json' | 'array';
-  description: string;
-  required: boolean;
-  default?: any;
-  min?: number;
-  max?: number;
+  name: string
+  type: 'pubkey' | 'string' | 'number' | 'bool' | 'json' | 'array'
+  description: string
+  required: boolean
+  default?: any
+  min?: number
+  max?: number
 }
 
 export interface BlockOutput {
-  name: string;
-  type: 'string' | 'json';
-  description: string;
+  name: string
+  type: 'string' | 'json'
+  description: string
 }
 
-export type BlockCategory = 'permission' | 'delegation' | 'magic' | 'program' | 'state';
+export type BlockCategory = 'permission' | 'delegation' | 'magic' | 'program' | 'state'
 
 export interface BlockDefinition {
-  id: string;
-  name: string;
-  category: BlockCategory;
-  description: string;
-  inputs: BlockInput[];
-  outputs: BlockOutput[];
-  icon?: string;
-  color?: string;
-  tags?: string[];
-  examples?: any;
+  id: string
+  name: string
+  category: BlockCategory
+  description: string
+  inputs: BlockInput[]
+  outputs: BlockOutput[]
+  icon?: string
+  color?: string
+  tags?: string[]
+  examples?: any
 }
 
 export const BLOCKS_REGISTRY: BlockDefinition[] = [
@@ -36,14 +36,27 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'state',
     description: 'Create a Flaek-owned state PDA',
     inputs: [
-      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
-      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name', required: true },
+      {
+        name: 'owner',
+        type: 'pubkey',
+        description: 'State owner (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'name_hash',
+        type: 'string',
+        description: '32-byte hash (hex/base64) of state name',
+        required: true,
+      },
       { name: 'max_len', type: 'number', description: 'Max bytes for state data', required: true },
-      { name: 'data', type: 'string', description: 'Initial data (utf8/base64/hex)', required: false },
+      {
+        name: 'data',
+        type: 'string',
+        description: 'Initial data (utf8/base64/hex)',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Database',
     color: '#38BDF8',
     tags: ['state', 'flaek'],
@@ -54,13 +67,21 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'state',
     description: 'Overwrite data for a Flaek state PDA',
     inputs: [
-      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
-      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name', required: true },
+      {
+        name: 'owner',
+        type: 'pubkey',
+        description: 'State owner (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'name_hash',
+        type: 'string',
+        description: '32-byte hash (hex/base64) of state name',
+        required: true,
+      },
       { name: 'data', type: 'string', description: 'New data (utf8/base64/hex)', required: true },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'PenLine',
     color: '#22C55E',
     tags: ['state', 'flaek'],
@@ -71,13 +92,26 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'state',
     description: 'Append bytes to a Flaek state PDA',
     inputs: [
-      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
-      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name', required: true },
-      { name: 'data', type: 'string', description: 'Data to append (utf8/base64/hex)', required: true },
+      {
+        name: 'owner',
+        type: 'pubkey',
+        description: 'State owner (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'name_hash',
+        type: 'string',
+        description: '32-byte hash (hex/base64) of state name',
+        required: true,
+      },
+      {
+        name: 'data',
+        type: 'string',
+        description: 'Data to append (utf8/base64/hex)',
+        required: true,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Plus',
     color: '#F97316',
     tags: ['state', 'flaek'],
@@ -88,12 +122,20 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'state',
     description: 'Close a Flaek state PDA and reclaim rent',
     inputs: [
-      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
-      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name', required: true },
+      {
+        name: 'owner',
+        type: 'pubkey',
+        description: 'State owner (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'name_hash',
+        type: 'string',
+        description: '32-byte hash (hex/base64) of state name',
+        required: true,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Trash2',
     color: '#EF4444',
     tags: ['state', 'flaek'],
@@ -104,14 +146,32 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'state',
     description: 'Delegate Flaek state PDA to ER/PER',
     inputs: [
-      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
-      { name: 'payer', type: 'pubkey', description: 'Fee payer (defaults to wallet)', required: false },
-      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name', required: true },
-      { name: 'validator', type: 'pubkey', description: 'ER validator public key', required: false },
+      {
+        name: 'owner',
+        type: 'pubkey',
+        description: 'State owner (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'payer',
+        type: 'pubkey',
+        description: 'Fee payer (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'name_hash',
+        type: 'string',
+        description: '32-byte hash (hex/base64) of state name',
+        required: true,
+      },
+      {
+        name: 'validator',
+        type: 'pubkey',
+        description: 'ER validator public key',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'ShieldCheck',
     color: '#A855F7',
     tags: ['state', 'flaek', 'delegation'],
@@ -122,14 +182,32 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'permission',
     description: 'Create a Permission account for a Flaek-owned state PDA',
     inputs: [
-      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
-      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name (optional for static state)', required: false },
-      { name: 'payer', type: 'pubkey', description: 'Fee payer (defaults to wallet)', required: false },
-      { name: 'members', type: 'json', description: 'Members array with flags and pubkeys', required: false },
+      {
+        name: 'owner',
+        type: 'pubkey',
+        description: 'State owner (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'name_hash',
+        type: 'string',
+        description: '32-byte hash (hex/base64) of state name (optional for static state)',
+        required: false,
+      },
+      {
+        name: 'payer',
+        type: 'pubkey',
+        description: 'Fee payer (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'members',
+        type: 'json',
+        description: 'Members array with flags and pubkeys',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Key',
     color: '#0EA5E9',
     tags: ['permission', 'flaek'],
@@ -140,14 +218,32 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'permission',
     description: 'Update permission members for a Flaek-owned state PDA',
     inputs: [
-      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
-      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name (optional for static state)', required: false },
-      { name: 'authority', type: 'pubkey', description: 'Authority signer (defaults to wallet)', required: false },
-      { name: 'members', type: 'json', description: 'Members array with flags and pubkeys', required: false },
+      {
+        name: 'owner',
+        type: 'pubkey',
+        description: 'State owner (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'name_hash',
+        type: 'string',
+        description: '32-byte hash (hex/base64) of state name (optional for static state)',
+        required: false,
+      },
+      {
+        name: 'authority',
+        type: 'pubkey',
+        description: 'Authority signer (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'members',
+        type: 'json',
+        description: 'Members array with flags and pubkeys',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Shield',
     color: '#22C55E',
     tags: ['permission', 'flaek'],
@@ -158,13 +254,26 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'permission',
     description: 'Commit permission state to base for a Flaek-owned state PDA',
     inputs: [
-      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
-      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name (optional for static state)', required: false },
-      { name: 'authority', type: 'pubkey', description: 'Authority signer (defaults to wallet)', required: false },
+      {
+        name: 'owner',
+        type: 'pubkey',
+        description: 'State owner (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'name_hash',
+        type: 'string',
+        description: '32-byte hash (hex/base64) of state name (optional for static state)',
+        required: false,
+      },
+      {
+        name: 'authority',
+        type: 'pubkey',
+        description: 'Authority signer (defaults to wallet)',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'CheckCircle',
     color: '#14B8A6',
     tags: ['permission', 'flaek', 'magic'],
@@ -175,13 +284,26 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'permission',
     description: 'Commit permission state and undelegate for a Flaek-owned state PDA',
     inputs: [
-      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
-      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name (optional for static state)', required: false },
-      { name: 'authority', type: 'pubkey', description: 'Authority signer (defaults to wallet)', required: false },
+      {
+        name: 'owner',
+        type: 'pubkey',
+        description: 'State owner (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'name_hash',
+        type: 'string',
+        description: '32-byte hash (hex/base64) of state name (optional for static state)',
+        required: false,
+      },
+      {
+        name: 'authority',
+        type: 'pubkey',
+        description: 'Authority signer (defaults to wallet)',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'CheckCircle2',
     color: '#0EA5E9',
     tags: ['permission', 'flaek', 'magic'],
@@ -192,14 +314,32 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'permission',
     description: 'Close permission account for a Flaek-owned state PDA',
     inputs: [
-      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
-      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name (optional for static state)', required: false },
-      { name: 'payer', type: 'pubkey', description: 'Fee payer (defaults to wallet)', required: false },
-      { name: 'authority', type: 'pubkey', description: 'Authority signer (defaults to wallet)', required: false },
+      {
+        name: 'owner',
+        type: 'pubkey',
+        description: 'State owner (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'name_hash',
+        type: 'string',
+        description: '32-byte hash (hex/base64) of state name (optional for static state)',
+        required: false,
+      },
+      {
+        name: 'payer',
+        type: 'pubkey',
+        description: 'Fee payer (defaults to wallet)',
+        required: false,
+      },
+      {
+        name: 'authority',
+        type: 'pubkey',
+        description: 'Authority signer (defaults to wallet)',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'XCircle',
     color: '#EF4444',
     tags: ['permission', 'flaek'],
@@ -210,14 +350,27 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'permission',
     description: 'Create a Permission account for a permissioned account',
     inputs: [
-      { name: 'permissioned_account', type: 'pubkey', description: 'Account to permission', required: true },
-      { name: 'permission', type: 'pubkey', description: 'Permission account PDA or keypair', required: false },
+      {
+        name: 'permissioned_account',
+        type: 'pubkey',
+        description: 'Account to permission',
+        required: true,
+      },
+      {
+        name: 'permission',
+        type: 'pubkey',
+        description: 'Permission account PDA or keypair',
+        required: false,
+      },
       { name: 'payer', type: 'pubkey', description: 'Fee payer', required: true },
-      { name: 'members', type: 'json', description: 'Members array with flags and pubkeys', required: false },
+      {
+        name: 'members',
+        type: 'json',
+        description: 'Members array with flags and pubkeys',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Key',
     color: '#0EA5E9',
     tags: ['permission', 'access-control'],
@@ -229,17 +382,50 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     description: 'Delegate permission and permissioned account to PER validator',
     inputs: [
       { name: 'payer', type: 'pubkey', description: 'Fee payer', required: true },
-      { name: 'authority', type: 'pubkey', description: 'Authority in permission members', required: true },
-      { name: 'authority_is_signer', type: 'bool', description: 'Whether authority signs', required: false },
-      { name: 'permissioned_account', type: 'pubkey', description: 'Account to permission', required: true },
-      { name: 'permissioned_account_is_signer', type: 'bool', description: 'Whether permissioned account signs', required: false },
-      { name: 'permission', type: 'pubkey', description: 'Permission account (optional)', required: false },
-      { name: 'owner_program', type: 'pubkey', description: 'Permission program ID', required: true },
-      { name: 'validator', type: 'pubkey', description: 'ER validator public key', required: false },
+      {
+        name: 'authority',
+        type: 'pubkey',
+        description: 'Authority in permission members',
+        required: true,
+      },
+      {
+        name: 'authority_is_signer',
+        type: 'bool',
+        description: 'Whether authority signs',
+        required: false,
+      },
+      {
+        name: 'permissioned_account',
+        type: 'pubkey',
+        description: 'Account to permission',
+        required: true,
+      },
+      {
+        name: 'permissioned_account_is_signer',
+        type: 'bool',
+        description: 'Whether permissioned account signs',
+        required: false,
+      },
+      {
+        name: 'permission',
+        type: 'pubkey',
+        description: 'Permission account (optional)',
+        required: false,
+      },
+      {
+        name: 'owner_program',
+        type: 'pubkey',
+        description: 'Permission program ID',
+        required: true,
+      },
+      {
+        name: 'validator',
+        type: 'pubkey',
+        description: 'ER validator public key',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Shield',
     color: '#22C55E',
     tags: ['permission', 'delegation'],
@@ -250,16 +436,44 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'permission',
     description: 'Update members or make permissioned account visible in PER',
     inputs: [
-      { name: 'authority', type: 'pubkey', description: 'Authority in permission members', required: true },
-      { name: 'authority_is_signer', type: 'bool', description: 'Whether authority signs', required: false },
-      { name: 'permissioned_account', type: 'pubkey', description: 'Account to permission', required: true },
-      { name: 'permissioned_account_is_signer', type: 'bool', description: 'Whether permissioned account signs', required: false },
-      { name: 'permission', type: 'pubkey', description: 'Permission account (optional)', required: false },
-      { name: 'members', type: 'json', description: 'New members array (or empty)', required: false },
+      {
+        name: 'authority',
+        type: 'pubkey',
+        description: 'Authority in permission members',
+        required: true,
+      },
+      {
+        name: 'authority_is_signer',
+        type: 'bool',
+        description: 'Whether authority signs',
+        required: false,
+      },
+      {
+        name: 'permissioned_account',
+        type: 'pubkey',
+        description: 'Account to permission',
+        required: true,
+      },
+      {
+        name: 'permissioned_account_is_signer',
+        type: 'bool',
+        description: 'Whether permissioned account signs',
+        required: false,
+      },
+      {
+        name: 'permission',
+        type: 'pubkey',
+        description: 'Permission account (optional)',
+        required: false,
+      },
+      {
+        name: 'members',
+        type: 'json',
+        description: 'New members array (or empty)',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Users',
     color: '#F59E0B',
     tags: ['permission', 'update'],
@@ -270,14 +484,32 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'permission',
     description: 'Commit permissioned state to L1 without undelegation',
     inputs: [
-      { name: 'authority', type: 'pubkey', description: 'Authority in permission members', required: true },
-      { name: 'authority_is_signer', type: 'bool', description: 'Whether authority signs', required: false },
-      { name: 'permissioned_account', type: 'pubkey', description: 'Permissioned account', required: true },
-      { name: 'permissioned_account_is_signer', type: 'bool', description: 'Whether permissioned account signs', required: false },
+      {
+        name: 'authority',
+        type: 'pubkey',
+        description: 'Authority in permission members',
+        required: true,
+      },
+      {
+        name: 'authority_is_signer',
+        type: 'bool',
+        description: 'Whether authority signs',
+        required: false,
+      },
+      {
+        name: 'permissioned_account',
+        type: 'pubkey',
+        description: 'Permissioned account',
+        required: true,
+      },
+      {
+        name: 'permissioned_account_is_signer',
+        type: 'bool',
+        description: 'Whether permissioned account signs',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Upload',
     color: '#6366F1',
     tags: ['permission', 'commit'],
@@ -288,15 +520,33 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     category: 'permission',
     description: 'Commit state and undelegate permission to Solana L1',
     inputs: [
-      { name: 'authority', type: 'pubkey', description: 'Authority in permission members', required: true },
-      { name: 'authority_is_signer', type: 'bool', description: 'Whether authority signs', required: false },
-      { name: 'permissioned_account', type: 'pubkey', description: 'Account to permission', required: true },
+      {
+        name: 'authority',
+        type: 'pubkey',
+        description: 'Authority in permission members',
+        required: true,
+      },
+      {
+        name: 'authority_is_signer',
+        type: 'bool',
+        description: 'Whether authority signs',
+        required: false,
+      },
+      {
+        name: 'permissioned_account',
+        type: 'pubkey',
+        description: 'Account to permission',
+        required: true,
+      },
       { name: 'permission', type: 'pubkey', description: 'Permission account', required: false },
-      { name: 'permissioned_account_is_signer', type: 'bool', description: 'Whether permissioned account signs', required: false },
+      {
+        name: 'permissioned_account_is_signer',
+        type: 'bool',
+        description: 'Whether permissioned account signs',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'CheckCircle',
     color: '#8B5CF6',
     tags: ['permission', 'commit'],
@@ -308,14 +558,27 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     description: 'Undelegate a permission PDA back to L1',
     inputs: [
       { name: 'permission', type: 'pubkey', description: 'Permission PDA', required: false },
-      { name: 'permissioned_account', type: 'pubkey', description: 'Permissioned account (to derive PDA)', required: false },
-      { name: 'delegation_buffer', type: 'pubkey', description: 'Delegation buffer PDA (optional)', required: false },
+      {
+        name: 'permissioned_account',
+        type: 'pubkey',
+        description: 'Permissioned account (to derive PDA)',
+        required: false,
+      },
+      {
+        name: 'delegation_buffer',
+        type: 'pubkey',
+        description: 'Delegation buffer PDA (optional)',
+        required: false,
+      },
       { name: 'validator', type: 'pubkey', description: 'ER validator public key', required: true },
-      { name: 'pda_seeds', type: 'array', description: 'Optional PDA seeds for undelegation', required: false },
+      {
+        name: 'pda_seeds',
+        type: 'array',
+        description: 'Optional PDA seeds for undelegation',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'CornerDownLeft',
     color: '#A855F7',
     tags: ['permission', 'undelegate'],
@@ -327,15 +590,33 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     description: 'Close permission account and reclaim deposit',
     inputs: [
       { name: 'payer', type: 'pubkey', description: 'Fee payer', required: true },
-      { name: 'authority', type: 'pubkey', description: 'Authority in permission members', required: true },
-      { name: 'authority_is_signer', type: 'bool', description: 'Whether authority signs', required: false },
-      { name: 'permissioned_account', type: 'pubkey', description: 'Account to permission', required: true },
+      {
+        name: 'authority',
+        type: 'pubkey',
+        description: 'Authority in permission members',
+        required: true,
+      },
+      {
+        name: 'authority_is_signer',
+        type: 'bool',
+        description: 'Whether authority signs',
+        required: false,
+      },
+      {
+        name: 'permissioned_account',
+        type: 'pubkey',
+        description: 'Account to permission',
+        required: true,
+      },
       { name: 'permission', type: 'pubkey', description: 'Permission account', required: false },
-      { name: 'permissioned_account_is_signer', type: 'bool', description: 'Whether permissioned account signs', required: false },
+      {
+        name: 'permissioned_account_is_signer',
+        type: 'bool',
+        description: 'Whether permissioned account signs',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'XCircle',
     color: '#EF4444',
     tags: ['permission', 'close'],
@@ -347,15 +628,38 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     description: 'Delegate an account to ER/PER using the delegation program',
     inputs: [
       { name: 'payer', type: 'pubkey', description: 'Fee payer', required: true },
-      { name: 'delegated_account', type: 'pubkey', description: 'Account to delegate', required: true },
-      { name: 'owner_program', type: 'pubkey', description: 'Owner program of the delegated account', required: true },
-      { name: 'validator', type: 'pubkey', description: 'ER validator public key', required: false },
-      { name: 'commit_frequency_ms', type: 'number', description: 'Commit frequency in ms', required: false },
-      { name: 'seeds', type: 'array', description: 'Optional PDA seeds (utf8/base64)', required: false },
+      {
+        name: 'delegated_account',
+        type: 'pubkey',
+        description: 'Account to delegate',
+        required: true,
+      },
+      {
+        name: 'owner_program',
+        type: 'pubkey',
+        description: 'Owner program of the delegated account',
+        required: true,
+      },
+      {
+        name: 'validator',
+        type: 'pubkey',
+        description: 'ER validator public key',
+        required: false,
+      },
+      {
+        name: 'commit_frequency_ms',
+        type: 'number',
+        description: 'Commit frequency in ms',
+        required: false,
+      },
+      {
+        name: 'seeds',
+        type: 'array',
+        description: 'Optional PDA seeds (utf8/base64)',
+        required: false,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'ArrowRightCircle',
     color: '#06B6D4',
     tags: ['delegation', 'delegate'],
@@ -372,9 +676,7 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
       { name: 'amount', type: 'number', description: 'Lamports to top up', required: true },
       { name: 'index', type: 'number', description: 'Escrow index (optional)', required: false },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Coins',
     color: '#22C55E',
     tags: ['delegation', 'balance'],
@@ -389,9 +691,7 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
       { name: 'escrow_authority', type: 'pubkey', description: 'Escrow authority', required: true },
       { name: 'index', type: 'number', description: 'Escrow index (optional)', required: false },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Wallet',
     color: '#EF4444',
     tags: ['delegation', 'balance'],
@@ -405,9 +705,7 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
       { name: 'payer', type: 'pubkey', description: 'Fee payer', required: true },
       { name: 'accounts', type: 'array', description: 'Accounts to commit', required: true },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Sparkles',
     color: '#F97316',
     tags: ['magic', 'commit'],
@@ -419,11 +717,14 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
     description: 'Schedule commit and undelegate via Magic Program',
     inputs: [
       { name: 'payer', type: 'pubkey', description: 'Fee payer', required: true },
-      { name: 'accounts', type: 'array', description: 'Accounts to commit & undelegate', required: true },
+      {
+        name: 'accounts',
+        type: 'array',
+        description: 'Accounts to commit & undelegate',
+        required: true,
+      },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Sparkles',
     color: '#FB923C',
     tags: ['magic', 'commit'],
@@ -438,28 +739,27 @@ export const BLOCKS_REGISTRY: BlockDefinition[] = [
       { name: 'accounts', type: 'json', description: 'Account metas and signers', required: true },
       { name: 'data', type: 'string', description: 'Instruction data (base64)', required: true },
     ],
-    outputs: [
-      { name: 'tx', type: 'string', description: 'Transaction signature' },
-    ],
+    outputs: [{ name: 'tx', type: 'string', description: 'Transaction signature' }],
     icon: 'Code',
     color: '#64748B',
     tags: ['program', 'custom'],
   },
-];
+]
 
 export function getBlockById(id: string) {
-  return BLOCKS_REGISTRY.find((b) => b.id === id);
+  return BLOCKS_REGISTRY.find((b) => b.id === id)
 }
 
 export function getBlocksByCategory(category: BlockCategory) {
-  return BLOCKS_REGISTRY.filter((b) => b.category === category);
+  return BLOCKS_REGISTRY.filter((b) => b.category === category)
 }
 
 export function searchBlocks(query: string) {
-  const q = query.toLowerCase();
-  return BLOCKS_REGISTRY.filter((b) =>
-    b.name.toLowerCase().includes(q) ||
-    b.description.toLowerCase().includes(q) ||
-    b.tags?.some((t) => t.toLowerCase().includes(q))
-  );
+  const q = query.toLowerCase()
+  return BLOCKS_REGISTRY.filter(
+    (b) =>
+      b.name.toLowerCase().includes(q) ||
+      b.description.toLowerCase().includes(q) ||
+      b.tags?.some((t) => t.toLowerCase().includes(q)),
+  )
 }
