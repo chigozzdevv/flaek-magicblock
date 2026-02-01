@@ -24,6 +24,7 @@ const envSchema = z.object({
   MAGICBLOCK_PERMISSION_PROGRAM_ID: z.string().default('ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1'),
   MAGICBLOCK_DELEGATION_PROGRAM_ID: z.string().default('DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh'),
   MAGICBLOCK_DEFAULT_VALIDATOR: z.string().default('MUS3hc9TCw4cGC12vHNoYcCGzJG1txjgQLZWVoeNHNd'),
+  FLAEK_MB_PROGRAM_ID: z.string().default('H2iGiWPCT13u76WXmK19pK5ssGh5gmR2NqcnKMVBfAFM'),
 
   API_KEY_HASH_SALT: z.string().min(8),
   INGEST_TTL_SECONDS: z.coerce.number().default(3600),

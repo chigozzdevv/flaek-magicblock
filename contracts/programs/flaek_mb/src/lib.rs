@@ -121,6 +121,58 @@ pub mod flaek_mb {
         )?;
         Ok(())
     }
+
+    pub fn create_state(
+        ctx: Context<CreateState>,
+        name_hash: [u8; 32],
+        max_len: u32,
+        data: Vec<u8>,
+    ) -> Result<()> {
+        require!(data.len() <= max_len as usize, FlaekError::DataTooLarge);
+        let state = &mut ctx.accounts.state;
+        state.owner = ctx.accounts.owner.key();
+        state.name_hash = name_hash;
+        state.max_len = max_len;
+        state.data = data;
+        state.bump = ctx.bumps.state;
+        Ok(())
+    }
+
+    pub fn update_state(ctx: Context<UpdateState>, _name_hash: [u8; 32], data: Vec<u8>) -> Result<()> {
+        let state = &mut ctx.accounts.state;
+        require!(data.len() <= state.max_len as usize, FlaekError::DataTooLarge);
+        state.data = data;
+        Ok(())
+    }
+
+    pub fn append_state(ctx: Context<AppendState>, _name_hash: [u8; 32], data: Vec<u8>) -> Result<()> {
+        let state = &mut ctx.accounts.state;
+        let new_len = state.data.len().saturating_add(data.len());
+        require!(new_len <= state.max_len as usize, FlaekError::DataTooLarge);
+        state.data.extend_from_slice(&data);
+        Ok(())
+    }
+
+    pub fn delegate_state(
+        ctx: Context<DelegateState>,
+        _name_hash: [u8; 32],
+        validator: Option<Pubkey>,
+    ) -> Result<()> {
+        let seeds: &[&[u8]] = &[
+            STATE_SEED,
+            ctx.accounts.owner.key().as_ref(),
+            ctx.accounts.state.name_hash.as_ref(),
+        ];
+        ctx.accounts.delegate_state(
+            &ctx.accounts.payer,
+            seeds,
+            DelegateConfig {
+                validator,
+                ..Default::default()
+            },
+        )?;
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -206,6 +258,65 @@ pub struct DelegatePda<'info> {
     pub validator: Option<AccountInfo<'info>>,
 }
 
+#[derive(Accounts)]
+#[instruction(name_hash: [u8; 32], max_len: u32, data: Vec<u8>)]
+pub struct CreateState<'info> {
+    #[account(
+        init,
+        payer = owner,
+        space = DynamicState::space(max_len),
+        seeds = [STATE_SEED, owner.key().as_ref(), name_hash.as_ref()],
+        bump
+    )]
+    pub state: Account<'info, DynamicState>,
+    #[account(mut)]
+    pub owner: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(name_hash: [u8; 32])]
+pub struct UpdateState<'info> {
+    #[account(
+        mut,
+        has_one = owner,
+        seeds = [STATE_SEED, owner.key().as_ref(), name_hash.as_ref()],
+        bump = state.bump
+    )]
+    pub state: Account<'info, DynamicState>,
+    pub owner: Signer<'info>,
+}
+
+#[derive(Accounts)]
+#[instruction(name_hash: [u8; 32])]
+pub struct AppendState<'info> {
+    #[account(
+        mut,
+        has_one = owner,
+        seeds = [STATE_SEED, owner.key().as_ref(), name_hash.as_ref()],
+        bump = state.bump
+    )]
+    pub state: Account<'info, DynamicState>,
+    pub owner: Signer<'info>,
+}
+
+#[delegate]
+#[derive(Accounts)]
+#[instruction(name_hash: [u8; 32])]
+pub struct DelegateState<'info> {
+    #[account(
+        mut,
+        del,
+        has_one = owner,
+        seeds = [STATE_SEED, owner.key().as_ref(), name_hash.as_ref()],
+        bump = state.bump
+    )]
+    pub state: Account<'info, DynamicState>,
+    #[account(mut)]
+    pub payer: Signer<'info>,
+    pub owner: Signer<'info>,
+}
+
 #[account]
 pub struct State {
     pub owner: Pubkey,
@@ -214,6 +325,23 @@ pub struct State {
 
 impl State {
     pub const LEN: usize = 32 + 8;
+}
+
+#[account]
+pub struct DynamicState {
+    pub owner: Pubkey,
+    pub name_hash: [u8; 32],
+    pub max_len: u32,
+    pub data: Vec<u8>,
+    pub bump: u8,
+}
+
+impl DynamicState {
+    pub const BASE_LEN: usize = 32 + 32 + 4 + 4 + 1;
+
+    pub fn space(max_len: u32) -> usize {
+        8 + Self::BASE_LEN + max_len as usize
+    }
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
@@ -231,4 +359,10 @@ fn find_bump(seed_data: &[Vec<u8>]) -> u8 {
     let seed_refs: Vec<&[u8]> = seed_data.iter().map(|s| s.as_slice()).collect();
     let (_, bump) = Pubkey::find_program_address(&seed_refs, &crate::ID);
     bump
+}
+
+#[error_code]
+pub enum FlaekError {
+    #[msg("data exceeds max_len")]
+    DataTooLarge,
 }

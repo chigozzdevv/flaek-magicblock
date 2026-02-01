@@ -77,4 +77,19 @@ async function cancel(req: Request, res: Response) {
   res.status(202).json({ job_id: jobId, status: 'cancelled' });
 }
 
-export const jobController = { create, list, get, submit, complete, cancel };
+async function appendLogs(req: Request, res: Response) {
+  const tenantId = (req as any).tenantId as string;
+  const { jobId } = req.params;
+  const { logs } = req.body || {};
+  const normalized = Array.isArray(logs)
+    ? logs.map((log: any) => ({
+        message: log.message,
+        level: log.level,
+        ts: log.ts ? new Date(log.ts) : undefined,
+      }))
+    : [];
+  const out = await jobService.appendLogs(tenantId, jobId, normalized);
+  res.json(out);
+}
+
+export const jobController = { create, list, get, submit, complete, cancel, appendLogs };

@@ -206,6 +206,16 @@ export async function apiGetOperation(id: string) {
   }>
 }
 
+export async function apiGetOperationSnippet(id: string) {
+  return request(`/v1/operations/${id}/snippet`) as Promise<{
+    operation_id: string
+    placeholders: string[]
+    context_example: Record<string, any>
+    sdk_snippet: string
+    api_snippet: string
+  }>
+}
+
 export async function apiCreateOperation(input: {
   name: string
   version: string
@@ -253,6 +263,7 @@ export async function apiGetJob(id: string) {
     execution_mode?: 'er' | 'per'
     tx_signatures?: string[]
     result?: any
+    logs?: Array<{ ts?: string; level?: string; message: string }>
   }>
 }
 
@@ -291,6 +302,16 @@ export async function apiCompleteJob(id: string, result?: any) {
   return request(`/v1/jobs/${id}/complete`, {
     method: 'POST',
     body: JSON.stringify({ result }),
+  }) as Promise<{ job_id: string; status: string }>
+}
+
+export async function apiAppendJobLogs(
+  id: string,
+  logs: Array<{ message: string; level?: 'info' | 'warn' | 'error'; ts?: string }>,
+) {
+  return request(`/v1/jobs/${id}/logs`, {
+    method: 'POST',
+    body: JSON.stringify({ logs }),
   }) as Promise<{ job_id: string; status: string }>
 }
 
@@ -480,6 +501,7 @@ export async function apiGetMagicblockConfig() {
     permission_program_id: string
     delegation_program_id: string
     default_validator: string
+    flaek_program_id: string
   }>
 }
 

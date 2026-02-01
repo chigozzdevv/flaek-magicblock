@@ -17,6 +17,7 @@ function getMagicblockConfig(_req: Request, res: Response) {
     permission_program_id: env.MAGICBLOCK_PERMISSION_PROGRAM_ID,
     delegation_program_id: env.MAGICBLOCK_DELEGATION_PROGRAM_ID,
     default_validator: env.MAGICBLOCK_DEFAULT_VALIDATOR,
+    flaek_program_id: env.FLAEK_MB_PROGRAM_ID,
   });
 }
 

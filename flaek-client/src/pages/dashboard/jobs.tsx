@@ -10,6 +10,7 @@ import {
   apiCancelJob,
   apiSubmitJob,
   apiCompleteJob,
+  apiAppendJobLogs,
   apiGetMagicblockConfig,
   apiGetMagicblockValidators,
 } from '@/lib/api'
@@ -57,6 +58,7 @@ export default function JobsPage() {
   const [walletPubkey, setWalletPubkey] = useState<string | null>(null)
   const [executing, setExecuting] = useState(false)
   const [execLogs, setExecLogs] = useState<string[]>([])
+  const [serverLogs, setServerLogs] = useState<Array<{ ts?: string; level?: string; message: string }>>([])
   const [execError, setExecError] = useState('')
 
   useEffect(() => {
@@ -94,6 +96,13 @@ export default function JobsPage() {
       setJobs((prev) =>
         prev.map((job) => (job.job_id === data.job_id ? { ...job, ...data } : job))
       )
+      setSelectedJob((prev: any) => {
+        if (!prev || prev.job_id !== data.job_id) return prev
+        if (data?.logs?.length) {
+          setServerLogs((prevLogs) => [...prevLogs, ...data.logs])
+        }
+        return { ...prev, ...data }
+      })
     })
     socket.on('disconnect', () => setSocketConnected(false))
     socket.on('connect_error', () => setSocketConnected(false))
@@ -131,6 +140,7 @@ export default function JobsPage() {
     setTxInput('')
     setShowDetails(true)
     setExecLogs([])
+    setServerLogs(data.logs || [])
     setExecError('')
     const wallet = getBrowserWallet()
     if (wallet?.publicKey) {
@@ -210,7 +220,10 @@ export default function JobsPage() {
           mode: executionMode,
           validator: selectedValidator || magicConfig.default_validator,
           verifyTee,
-          onLog: (msg) => setExecLogs((prev) => [...prev, msg]),
+          onLog: (msg) => {
+            setExecLogs((prev) => [...prev, msg])
+            apiAppendJobLogs(selectedJob.job_id, [{ message: msg }]).catch(() => {})
+          },
         },
       )
       setTxInput(result.signatures.join('\\n'))
@@ -370,11 +383,18 @@ export default function JobsPage() {
                 {executing ? 'Executing...' : 'Execute Plan with Wallet'}
               </Button>
               {execError && <div className="text-xs text-red-400">{execError}</div>}
-              {execLogs.length > 0 && (
-                <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg">
-                  {execLogs.join('\n')}
-                </pre>
-              )}
+            {(serverLogs.length > 0 || execLogs.length > 0) && (
+              <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg">
+                  {[
+                    ...serverLogs.map((log) => {
+                      const ts = log.ts ? new Date(log.ts).toLocaleTimeString() : ''
+                      const prefix = ts ? `[${ts}] ` : ''
+                      return `${prefix}${log.message}`
+                    }),
+                    ...execLogs,
+                  ].join('\n')}
+              </pre>
+            )}
             </div>
 
             <div className="text-xs text-white/60">Plan</div>

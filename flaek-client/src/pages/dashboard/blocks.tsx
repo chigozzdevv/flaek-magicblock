@@ -19,6 +19,7 @@ const categoryStyles: Record<string, string> = {
   delegation: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
   magic: 'bg-orange-500/10 text-orange-300 border-orange-500/30',
   program: 'bg-zinc-500/10 text-zinc-300 border-zinc-500/30',
+  state: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30',
 }
 
 export default function BlocksPage() {

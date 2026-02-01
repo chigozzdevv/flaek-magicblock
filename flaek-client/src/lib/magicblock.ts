@@ -4,6 +4,7 @@ import {
   PublicKey,
   Transaction,
   TransactionInstruction,
+  SystemProgram,
 } from '@solana/web3.js'
 import {
   createCreatePermissionInstruction,
@@ -41,6 +42,9 @@ export type MagicblockConfig = {
   tee_ws_url: string
   er_rpc_url: string
   default_validator?: string
+  permission_program_id?: string
+  delegation_program_id?: string
+  flaek_program_id?: string
 }
 
 export type WalletProvider = {
@@ -101,6 +105,7 @@ export async function executePlanWithWallet(
     const instruction = buildInstructionFromStep(step, {
       walletPubkey,
       validator: options.validator,
+      config,
     })
     if (!instruction) {
       throw new Error(`Unsupported block: ${step.blockId}`)
@@ -178,7 +183,7 @@ async function signAndSendTransaction(
 
 function buildInstructionFromStep(
   step: ExecutionPlanStep,
-  ctx: { walletPubkey: PublicKey; validator?: string },
+  ctx: { walletPubkey: PublicKey; validator?: string; config: MagicblockConfig },
 ): TransactionInstruction | null {
   const inputs = step.inputs || {}
 
@@ -347,6 +352,122 @@ function buildInstructionFromStep(
       const data = parseInstructionData(inputs.data)
       return new TransactionInstruction({ programId, keys, data })
     }
+    case 'flaek_create_state': {
+      const programId = parsePubkey(ctx.config.flaek_program_id, 'flaek_program_id')
+      const owner = parsePubkey(
+        resolveInput(inputs.owner ?? inputs.payer ?? '$wallet', ctx.walletPubkey),
+        'owner',
+      )
+      const nameHash = parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash')
+      const maxLen = parseRequiredNumber(inputs.max_len ?? inputs.maxLen, 'max_len')
+      const data = parseInstructionData(inputs.data ?? '')
+      const state = PublicKey.findProgramAddressSync(
+        [Buffer.from('state'), owner.toBytes(), Buffer.from(nameHash)],
+        programId,
+      )[0]
+      const ixData = Buffer.concat([
+        FLAEK_CREATE_STATE_DISCRIMINATOR,
+        Buffer.from(nameHash),
+        serializeU32(maxLen),
+        serializeVec(data),
+      ])
+      const keys = [
+        { pubkey: state, isWritable: true, isSigner: false },
+        { pubkey: owner, isWritable: true, isSigner: true },
+        { pubkey: SystemProgram.programId, isWritable: false, isSigner: false },
+      ]
+      return new TransactionInstruction({ programId, keys, data: ixData })
+    }
+    case 'flaek_update_state': {
+      const programId = parsePubkey(ctx.config.flaek_program_id, 'flaek_program_id')
+      const owner = parsePubkey(
+        resolveInput(inputs.owner ?? inputs.payer ?? '$wallet', ctx.walletPubkey),
+        'owner',
+      )
+      const nameHash = parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash')
+      const data = parseInstructionData(inputs.data ?? '')
+      const state = PublicKey.findProgramAddressSync(
+        [Buffer.from('state'), owner.toBytes(), Buffer.from(nameHash)],
+        programId,
+      )[0]
+      const ixData = Buffer.concat([
+        FLAEK_UPDATE_STATE_DISCRIMINATOR,
+        Buffer.from(nameHash),
+        serializeVec(data),
+      ])
+      const keys = [
+        { pubkey: state, isWritable: true, isSigner: false },
+        { pubkey: owner, isWritable: false, isSigner: true },
+      ]
+      return new TransactionInstruction({ programId, keys, data: ixData })
+    }
+    case 'flaek_append_state': {
+      const programId = parsePubkey(ctx.config.flaek_program_id, 'flaek_program_id')
+      const owner = parsePubkey(
+        resolveInput(inputs.owner ?? inputs.payer ?? '$wallet', ctx.walletPubkey),
+        'owner',
+      )
+      const nameHash = parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash')
+      const data = parseInstructionData(inputs.data ?? '')
+      const state = PublicKey.findProgramAddressSync(
+        [Buffer.from('state'), owner.toBytes(), Buffer.from(nameHash)],
+        programId,
+      )[0]
+      const ixData = Buffer.concat([
+        FLAEK_APPEND_STATE_DISCRIMINATOR,
+        Buffer.from(nameHash),
+        serializeVec(data),
+      ])
+      const keys = [
+        { pubkey: state, isWritable: true, isSigner: false },
+        { pubkey: owner, isWritable: false, isSigner: true },
+      ]
+      return new TransactionInstruction({ programId, keys, data: ixData })
+    }
+    case 'flaek_delegate_state': {
+      const programId = parsePubkey(ctx.config.flaek_program_id, 'flaek_program_id')
+      const delegationProgramId = parsePubkey(ctx.config.delegation_program_id, 'delegation_program_id')
+      const owner = parsePubkey(resolveInput(inputs.owner ?? '$wallet', ctx.walletPubkey), 'owner')
+      const payer = parsePubkey(
+        resolveInput(inputs.payer ?? owner.toBase58(), ctx.walletPubkey),
+        'payer',
+      )
+      const nameHash = parseHash32(inputs.name_hash ?? inputs.nameHash, 'name_hash')
+      const validator = parseOptionalPubkey(inputs.validator ?? ctx.validator)
+      const state = PublicKey.findProgramAddressSync(
+        [Buffer.from('state'), owner.toBytes(), Buffer.from(nameHash)],
+        programId,
+      )[0]
+      const buffer = PublicKey.findProgramAddressSync(
+        [Buffer.from('buffer'), state.toBytes()],
+        programId,
+      )[0]
+      const delegationRecord = PublicKey.findProgramAddressSync(
+        [Buffer.from('delegation'), state.toBytes()],
+        delegationProgramId,
+      )[0]
+      const delegationMetadata = PublicKey.findProgramAddressSync(
+        [Buffer.from('delegation-metadata'), state.toBytes()],
+        delegationProgramId,
+      )[0]
+      const ixData = Buffer.concat([
+        FLAEK_DELEGATE_STATE_DISCRIMINATOR,
+        Buffer.from(nameHash),
+        serializeOptionPubkey(validator),
+      ])
+      const keys = [
+        { pubkey: buffer, isWritable: true, isSigner: false },
+        { pubkey: delegationRecord, isWritable: true, isSigner: false },
+        { pubkey: delegationMetadata, isWritable: true, isSigner: false },
+        { pubkey: state, isWritable: true, isSigner: false },
+        { pubkey: payer, isWritable: true, isSigner: true },
+        { pubkey: owner, isWritable: false, isSigner: true },
+        { pubkey: programId, isWritable: false, isSigner: false },
+        { pubkey: delegationProgramId, isWritable: false, isSigner: false },
+        { pubkey: SystemProgram.programId, isWritable: false, isSigner: false },
+      ]
+      return new TransactionInstruction({ programId, keys, data: ixData })
+    }
     default:
       return null
   }
@@ -426,9 +547,12 @@ function parseAccountMetas(value: any, walletPubkey: PublicKey) {
 }
 
 function parseInstructionData(value: any): Buffer {
-  if (!value) return Buffer.alloc(0)
+  if (value === undefined || value === null || value === '') return Buffer.alloc(0)
   if (typeof value !== 'string') {
-    throw new Error('data must be base64/hex/utf8 string')
+    if (typeof value === 'number' || typeof value === 'boolean') {
+      return Buffer.from(new TextEncoder().encode(String(value)))
+    }
+    return Buffer.from(new TextEncoder().encode(JSON.stringify(value)))
   }
   if (value.startsWith('base64:')) {
     return Buffer.from(decodeBase64(value.slice(7)))
@@ -453,6 +577,55 @@ function parseOptionalNumber(value: any): number | undefined {
   const num = Number(value)
   if (Number.isNaN(num)) return undefined
   return num
+}
+
+function parseHash32(value: any, label: string): Uint8Array {
+  if (!value) throw new Error(`${label} is required`)
+  if (value instanceof Uint8Array) {
+    if (value.length !== 32) throw new Error(`${label} must be 32 bytes`)
+    return value
+  }
+  if (Array.isArray(value)) {
+    if (value.length !== 32) throw new Error(`${label} must be 32 bytes`)
+    return Uint8Array.from(value)
+  }
+  if (typeof value === 'string') {
+    if (value.startsWith('base64:')) {
+      const bytes = decodeBase64(value.slice(7))
+      if (bytes.length !== 32) throw new Error(`${label} must be 32 bytes`)
+      return bytes
+    }
+    if (value.startsWith('hex:')) {
+      const bytes = Uint8Array.from(Buffer.from(value.slice(4), 'hex'))
+      if (bytes.length !== 32) throw new Error(`${label} must be 32 bytes`)
+      return bytes
+    }
+    if (/^[0-9a-fA-F]{64}$/.test(value)) {
+      const bytes = Uint8Array.from(Buffer.from(value, 'hex'))
+      return bytes
+    }
+    if (isBase64(value)) {
+      const bytes = decodeBase64(value)
+      if (bytes.length !== 32) throw new Error(`${label} must be 32 bytes`)
+      return bytes
+    }
+  }
+  throw new Error(`${label} must be a 32-byte hex/base64 string`)
+}
+
+function serializeU32(value: number): Buffer {
+  const buf = Buffer.alloc(4)
+  buf.writeUInt32LE(value, 0)
+  return buf
+}
+
+function serializeVec(bytes: Uint8Array): Buffer {
+  return Buffer.concat([serializeU32(bytes.length), Buffer.from(bytes)])
+}
+
+function serializeOptionPubkey(value?: PublicKey): Buffer {
+  if (!value) return Buffer.from([0])
+  return Buffer.concat([Buffer.from([1]), value.toBuffer()])
 }
 
 function parseSeedArgs(value: any): Uint8Array[] | undefined {
@@ -482,3 +655,8 @@ function decodeBase64(value: string): Uint8Array {
 function isBase64(value: string): boolean {
   return /^[A-Za-z0-9+/=]+$/.test(value)
 }
+
+const FLAEK_CREATE_STATE_DISCRIMINATOR = Buffer.from([214, 211, 209, 79, 107, 105, 247, 222])
+const FLAEK_UPDATE_STATE_DISCRIMINATOR = Buffer.from([135, 112, 215, 75, 247, 185, 53, 176])
+const FLAEK_APPEND_STATE_DISCRIMINATOR = Buffer.from([117, 27, 130, 11, 65, 184, 88, 92])
+const FLAEK_DELEGATE_STATE_DISCRIMINATOR = Buffer.from([47, 115, 98, 67, 249, 81, 123, 119])

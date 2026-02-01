@@ -32,4 +32,11 @@ async function deprecate(req: Request, res: Response) {
   res.status(204).end();
 }
 
-export const operationController = { create, list, get, update, deprecate };
+async function snippet(req: Request, res: Response) {
+  const tenantId = (req as any).tenantId as string;
+  const { operationId } = req.params;
+  const out = await operationService.getSnippet(tenantId, operationId);
+  res.json(out);
+}
+
+export const operationController = { create, list, get, update, deprecate, snippet };

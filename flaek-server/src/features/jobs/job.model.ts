@@ -9,6 +9,7 @@ export type JobDocument = mongoose.Document & {
   txSignatures?: string[];
   result?: any;
   error?: any;
+  logs?: Array<{ ts: Date; level?: string; message: string }>;
   callbackUrl?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -23,6 +24,16 @@ const jobSchema = new Schema<any>({
   txSignatures: { type: [String], default: [] },
   result: { type: Schema.Types.Mixed },
   error: { type: Schema.Types.Mixed },
+  logs: {
+    type: [
+      {
+        ts: { type: Date, default: Date.now },
+        level: { type: String },
+        message: { type: String, required: true },
+      },
+    ],
+    default: [],
+  },
   callbackUrl: { type: String },
 }, { timestamps: true });
 

@@ -8,3 +8,15 @@ export const createJobSchema = z.object({
     callback_url: z.string().url().optional(),
   }),
 });
+
+export const appendJobLogsSchema = z.object({
+  body: z.object({
+    logs: z.array(
+      z.object({
+        message: z.string().min(1),
+        level: z.enum(['info', 'warn', 'error']).optional(),
+        ts: z.string().datetime().optional(),
+      })
+    ).min(1),
+  }),
+});

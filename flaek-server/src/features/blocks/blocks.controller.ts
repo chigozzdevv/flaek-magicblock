@@ -56,6 +56,7 @@ async function getCategories(req: Request, res: Response) {
     { id: 'delegation', name: 'Delegation', icon: 'Shield' },
     { id: 'magic', name: 'Magic Actions', icon: 'Sparkles' },
     { id: 'program', name: 'Program Calls', icon: 'Code' },
+    { id: 'state', name: 'Flaek State', icon: 'Database' },
   ];
 
   const categoriesWithCounts = categories.map(cat => ({

@@ -40,4 +40,26 @@ export const jobRepository = {
   async setResult(jobId: string, result: any) {
     return JobModel.findByIdAndUpdate(jobId, { result }, { new: true }).exec();
   },
+  async appendLogs(tenantId: string, jobId: string, logs: Array<{ ts?: Date; level?: string; message: string }>) {
+    if (!logs.length) return null;
+    const normalized = logs.map((log) => ({
+      ts: log.ts || new Date(),
+      level: log.level,
+      message: log.message,
+    }));
+    const job = await JobModel.findOneAndUpdate(
+      { _id: jobId, tenantId },
+      { $push: { logs: { $each: normalized, $slice: -200 } } },
+      { new: true },
+    ).exec();
+    if (job) {
+      broadcastJobUpdate(job.tenantId, {
+        type: 'job.log',
+        job_id: job.id,
+        logs: normalized,
+        updated_at: job.updatedAt,
+      });
+    }
+    return job;
+  },
 };

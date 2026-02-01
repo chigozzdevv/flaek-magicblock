@@ -14,7 +14,7 @@ export interface BlockOutput {
   description: string;
 }
 
-export type BlockCategory = 'permission' | 'delegation' | 'magic' | 'program';
+export type BlockCategory = 'permission' | 'delegation' | 'magic' | 'program' | 'state';
 
 export interface BlockDefinition {
   id: string;
@@ -30,6 +30,76 @@ export interface BlockDefinition {
 }
 
 export const BLOCKS_REGISTRY: BlockDefinition[] = [
+  {
+    id: 'flaek_create_state',
+    name: 'Create State',
+    category: 'state',
+    description: 'Create a Flaek-owned state PDA',
+    inputs: [
+      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
+      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name', required: true },
+      { name: 'max_len', type: 'number', description: 'Max bytes for state data', required: true },
+      { name: 'data', type: 'string', description: 'Initial data (utf8/base64/hex)', required: false },
+    ],
+    outputs: [
+      { name: 'tx', type: 'string', description: 'Transaction signature' },
+    ],
+    icon: 'Database',
+    color: '#38BDF8',
+    tags: ['state', 'flaek'],
+  },
+  {
+    id: 'flaek_update_state',
+    name: 'Update State',
+    category: 'state',
+    description: 'Overwrite data for a Flaek state PDA',
+    inputs: [
+      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
+      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name', required: true },
+      { name: 'data', type: 'string', description: 'New data (utf8/base64/hex)', required: true },
+    ],
+    outputs: [
+      { name: 'tx', type: 'string', description: 'Transaction signature' },
+    ],
+    icon: 'PenLine',
+    color: '#22C55E',
+    tags: ['state', 'flaek'],
+  },
+  {
+    id: 'flaek_append_state',
+    name: 'Append State',
+    category: 'state',
+    description: 'Append bytes to a Flaek state PDA',
+    inputs: [
+      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
+      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name', required: true },
+      { name: 'data', type: 'string', description: 'Data to append (utf8/base64/hex)', required: true },
+    ],
+    outputs: [
+      { name: 'tx', type: 'string', description: 'Transaction signature' },
+    ],
+    icon: 'Plus',
+    color: '#F97316',
+    tags: ['state', 'flaek'],
+  },
+  {
+    id: 'flaek_delegate_state',
+    name: 'Delegate State',
+    category: 'state',
+    description: 'Delegate Flaek state PDA to ER/PER',
+    inputs: [
+      { name: 'owner', type: 'pubkey', description: 'State owner (defaults to wallet)', required: false },
+      { name: 'payer', type: 'pubkey', description: 'Fee payer (defaults to wallet)', required: false },
+      { name: 'name_hash', type: 'string', description: '32-byte hash (hex/base64) of state name', required: true },
+      { name: 'validator', type: 'pubkey', description: 'ER validator public key', required: false },
+    ],
+    outputs: [
+      { name: 'tx', type: 'string', description: 'Transaction signature' },
+    ],
+    icon: 'ShieldCheck',
+    color: '#A855F7',
+    tags: ['state', 'flaek', 'delegation'],
+  },
   {
     id: 'mb_create_permission',
     name: 'Create Permission',
