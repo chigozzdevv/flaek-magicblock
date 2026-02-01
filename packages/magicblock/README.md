@@ -21,7 +21,7 @@ npm install @flaek/magicblock
 import { createFlaekClient } from '@flaek/magicblock'
 
 const flaek = createFlaekClient({
-  baseUrl: 'https://api.flaek.com',
+  baseUrl: 'https://api.flaek.dev',
   authToken: '<API_KEY_OR_JWT>',
 })
 
@@ -42,7 +42,7 @@ await flaek.runJob({
 
 ```ts
 const flaek = createFlaekClient({
-  baseUrl: 'https://api.flaek.com',
+  baseUrl: 'https://api.flaek.dev',
   authToken: '<API_KEY_OR_JWT>',
 })
 ```

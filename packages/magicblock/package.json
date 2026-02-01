@@ -1,6 +1,6 @@
 {
   "name": "@flaek/magicblock",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Flaek SDK for Magicblock job execution",
   "license": "MIT",
   "private": false,
