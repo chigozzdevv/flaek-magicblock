@@ -23,9 +23,9 @@ type JobLog = { message: string; level?: 'info' | 'warn' | 'error'; ts?: string 
 
 function getDefaultBaseUrl() {
   try {
-    return (import.meta as any)?.env?.VITE_API_BASE || ''
+    return (import.meta as any)?.env?.VITE_API_BASE || 'https://api.flaek.dev'
   } catch {
-    return ''
+    return 'https://api.flaek.dev'
   }
 }
 
@@ -76,9 +76,12 @@ export function createFlaekClient(options: FlaekClientOptions = {}) {
       tee_rpc_url: string
       tee_ws_url: string
       er_rpc_url: string
+      er_ws_url?: string
       default_validator?: string
       permission_program_id?: string
       delegation_program_id?: string
+      magic_program_id?: string
+      magic_context_id?: string
       flaek_program_id?: string
     }>
   }

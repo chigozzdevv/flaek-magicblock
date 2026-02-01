@@ -14,8 +14,11 @@ function getMagicblockConfig(_req: Request, res: Response) {
     tee_rpc_url: env.MAGICBLOCK_TEE_RPC_URL,
     tee_ws_url: env.MAGICBLOCK_TEE_WS_URL,
     er_rpc_url: env.MAGICBLOCK_ER_RPC_URL,
+    er_ws_url: env.MAGICBLOCK_ER_WS_URL,
     permission_program_id: env.MAGICBLOCK_PERMISSION_PROGRAM_ID,
     delegation_program_id: env.MAGICBLOCK_DELEGATION_PROGRAM_ID,
+    magic_program_id: env.MAGICBLOCK_MAGIC_PROGRAM_ID,
+    magic_context_id: env.MAGICBLOCK_MAGIC_CONTEXT_ID,
     default_validator: env.MAGICBLOCK_DEFAULT_VALIDATOR,
     flaek_program_id: env.FLAEK_MB_PROGRAM_ID,
   });

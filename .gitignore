@@ -22,3 +22,6 @@ contracts/target/
 
 # Metadata
 metadata.json
+
+# Local scratch
+tmp/

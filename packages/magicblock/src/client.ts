@@ -28,9 +28,9 @@ type JobPlan = {
 
 function getDefaultBaseUrl() {
   try {
-    return (import.meta as any)?.env?.VITE_API_BASE || ''
+    return (import.meta as any)?.env?.VITE_API_BASE || 'https://api.flaek.dev'
   } catch {
-    return ''
+    return 'https://api.flaek.dev'
   }
 }
 

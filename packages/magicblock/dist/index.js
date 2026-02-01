@@ -227,6 +227,119 @@ function buildInstructionFromStep(step, ctx) {
       );
       return (0, import_ephemeral_rollups_sdk.createClosePermissionInstruction)({ payer, authority, permissionedAccount });
     }
+    case "flaek_create_permission": {
+      const programId = parsePubkey(ctx.config.flaek_program_id, "flaek_program_id");
+      const owner = parsePubkey(resolveInput(inputs.owner ?? "$wallet", ctx.walletPubkey), "owner");
+      const nameHash = inputs.name_hash ? parseHash32(inputs.name_hash ?? inputs.nameHash, "name_hash") : null;
+      const permissionedAccount = resolveStatePda(programId, owner, nameHash);
+      const permission = (0, import_ephemeral_rollups_sdk.permissionPdaFromAccount)(permissionedAccount);
+      const payer = parsePubkey(resolveInput(inputs.payer ?? "$wallet", ctx.walletPubkey), "payer");
+      const members = parseMembers(inputs.members, ctx.walletPubkey);
+      const accountType = serializeAccountType(owner, nameHash);
+      const membersArgs = serializeMembersArgs(members);
+      const ixData = import_buffer.Buffer.concat([
+        import_buffer.Buffer.from([190, 182, 26, 164, 156, 221, 8, 0]),
+        accountType,
+        membersArgs
+      ]);
+      const keys = [
+        { pubkey: permissionedAccount, isWritable: false, isSigner: false },
+        { pubkey: permission, isWritable: true, isSigner: false },
+        { pubkey: payer, isWritable: true, isSigner: true },
+        { pubkey: parsePubkey(ctx.config.permission_program_id, "permission_program_id"), isWritable: false, isSigner: false },
+        { pubkey: import_web3.SystemProgram.programId, isWritable: false, isSigner: false }
+      ];
+      return new import_web3.TransactionInstruction({ programId, keys, data: ixData });
+    }
+    case "flaek_update_permission": {
+      const programId = parsePubkey(ctx.config.flaek_program_id, "flaek_program_id");
+      const owner = parsePubkey(resolveInput(inputs.owner ?? "$wallet", ctx.walletPubkey), "owner");
+      const nameHash = inputs.name_hash ? parseHash32(inputs.name_hash ?? inputs.nameHash, "name_hash") : null;
+      const permissionedAccount = resolveStatePda(programId, owner, nameHash);
+      const permission = (0, import_ephemeral_rollups_sdk.permissionPdaFromAccount)(permissionedAccount);
+      const authority = parsePubkey(resolveInput(inputs.authority ?? "$wallet", ctx.walletPubkey), "authority");
+      const members = parseMembers(inputs.members, ctx.walletPubkey);
+      const accountType = serializeAccountType(owner, nameHash);
+      const membersArgs = serializeMembersArgs(members);
+      const ixData = import_buffer.Buffer.concat([
+        import_buffer.Buffer.from([1, 120, 111, 126, 237, 61, 41, 61]),
+        accountType,
+        membersArgs
+      ]);
+      const keys = [
+        { pubkey: permissionedAccount, isWritable: false, isSigner: false },
+        { pubkey: permission, isWritable: true, isSigner: false },
+        { pubkey: authority, isWritable: true, isSigner: true },
+        { pubkey: parsePubkey(ctx.config.permission_program_id, "permission_program_id"), isWritable: false, isSigner: false }
+      ];
+      return new import_web3.TransactionInstruction({ programId, keys, data: ixData });
+    }
+    case "flaek_commit_permission": {
+      const programId = parsePubkey(ctx.config.flaek_program_id, "flaek_program_id");
+      const owner = parsePubkey(resolveInput(inputs.owner ?? "$wallet", ctx.walletPubkey), "owner");
+      const nameHash = inputs.name_hash ? parseHash32(inputs.name_hash ?? inputs.nameHash, "name_hash") : null;
+      const permissionedAccount = resolveStatePda(programId, owner, nameHash);
+      const permission = (0, import_ephemeral_rollups_sdk.permissionPdaFromAccount)(permissionedAccount);
+      const authority = parsePubkey(resolveInput(inputs.authority ?? "$wallet", ctx.walletPubkey), "authority");
+      const accountType = serializeAccountType(owner, nameHash);
+      const ixData = import_buffer.Buffer.concat([
+        import_buffer.Buffer.from([173, 8, 171, 138, 163, 171, 62, 223]),
+        accountType
+      ]);
+      const keys = [
+        { pubkey: permissionedAccount, isWritable: false, isSigner: false },
+        { pubkey: permission, isWritable: true, isSigner: false },
+        { pubkey: authority, isWritable: true, isSigner: true },
+        { pubkey: parsePubkey(ctx.config.permission_program_id, "permission_program_id"), isWritable: false, isSigner: false },
+        { pubkey: parsePubkey(ctx.config.magic_program_id ?? "Magic11111111111111111111111111111111111111", "magic_program_id"), isWritable: false, isSigner: false },
+        { pubkey: parsePubkey(ctx.config.magic_context_id ?? "MagicContext1111111111111111111111111111111", "magic_context_id"), isWritable: true, isSigner: false }
+      ];
+      return new import_web3.TransactionInstruction({ programId, keys, data: ixData });
+    }
+    case "flaek_commit_undelegate_permission": {
+      const programId = parsePubkey(ctx.config.flaek_program_id, "flaek_program_id");
+      const owner = parsePubkey(resolveInput(inputs.owner ?? "$wallet", ctx.walletPubkey), "owner");
+      const nameHash = inputs.name_hash ? parseHash32(inputs.name_hash ?? inputs.nameHash, "name_hash") : null;
+      const permissionedAccount = resolveStatePda(programId, owner, nameHash);
+      const permission = (0, import_ephemeral_rollups_sdk.permissionPdaFromAccount)(permissionedAccount);
+      const authority = parsePubkey(resolveInput(inputs.authority ?? "$wallet", ctx.walletPubkey), "authority");
+      const accountType = serializeAccountType(owner, nameHash);
+      const ixData = import_buffer.Buffer.concat([
+        import_buffer.Buffer.from([67, 87, 223, 139, 187, 5, 93, 241]),
+        accountType
+      ]);
+      const keys = [
+        { pubkey: permissionedAccount, isWritable: false, isSigner: false },
+        { pubkey: permission, isWritable: true, isSigner: false },
+        { pubkey: authority, isWritable: true, isSigner: true },
+        { pubkey: parsePubkey(ctx.config.permission_program_id, "permission_program_id"), isWritable: false, isSigner: false },
+        { pubkey: parsePubkey(ctx.config.magic_program_id ?? "Magic11111111111111111111111111111111111111", "magic_program_id"), isWritable: false, isSigner: false },
+        { pubkey: parsePubkey(ctx.config.magic_context_id ?? "MagicContext1111111111111111111111111111111", "magic_context_id"), isWritable: true, isSigner: false }
+      ];
+      return new import_web3.TransactionInstruction({ programId, keys, data: ixData });
+    }
+    case "flaek_close_permission": {
+      const programId = parsePubkey(ctx.config.flaek_program_id, "flaek_program_id");
+      const owner = parsePubkey(resolveInput(inputs.owner ?? "$wallet", ctx.walletPubkey), "owner");
+      const nameHash = inputs.name_hash ? parseHash32(inputs.name_hash ?? inputs.nameHash, "name_hash") : null;
+      const permissionedAccount = resolveStatePda(programId, owner, nameHash);
+      const permission = (0, import_ephemeral_rollups_sdk.permissionPdaFromAccount)(permissionedAccount);
+      const payer = parsePubkey(resolveInput(inputs.payer ?? "$wallet", ctx.walletPubkey), "payer");
+      const authority = parsePubkey(resolveInput(inputs.authority ?? "$wallet", ctx.walletPubkey), "authority");
+      const accountType = serializeAccountType(owner, nameHash);
+      const ixData = import_buffer.Buffer.concat([
+        import_buffer.Buffer.from([17, 241, 212, 43, 238, 201, 203, 210]),
+        accountType
+      ]);
+      const keys = [
+        { pubkey: permissionedAccount, isWritable: false, isSigner: false },
+        { pubkey: permission, isWritable: true, isSigner: false },
+        { pubkey: payer, isWritable: true, isSigner: true },
+        { pubkey: authority, isWritable: true, isSigner: true },
+        { pubkey: parsePubkey(ctx.config.permission_program_id, "permission_program_id"), isWritable: false, isSigner: false }
+      ];
+      return new import_web3.TransactionInstruction({ programId, keys, data: ixData });
+    }
     case "mb_delegate_pda": {
       const payer = parsePubkey(resolveInput(inputs.payer, ctx.walletPubkey), "payer");
       const delegatedAccount = parsePubkey(inputs.delegated_account, "delegated_account");
@@ -345,6 +458,27 @@ function buildInstructionFromStep(step, ctx) {
       ];
       return new import_web3.TransactionInstruction({ programId, keys, data: ixData });
     }
+    case "flaek_close_state": {
+      const programId = parsePubkey(ctx.config.flaek_program_id, "flaek_program_id");
+      const owner = parsePubkey(
+        resolveInput(inputs.owner ?? inputs.payer ?? "$wallet", ctx.walletPubkey),
+        "owner"
+      );
+      const nameHash = parseHash32(inputs.name_hash ?? inputs.nameHash, "name_hash");
+      const [state] = import_web3.PublicKey.findProgramAddressSync(
+        [import_buffer.Buffer.from("state"), owner.toBytes(), import_buffer.Buffer.from(nameHash)],
+        programId
+      );
+      const ixData = import_buffer.Buffer.concat([
+        import_buffer.Buffer.from([25, 1, 184, 101, 200, 245, 210, 246]),
+        import_buffer.Buffer.from(nameHash)
+      ]);
+      const keys = [
+        { pubkey: state, isWritable: true, isSigner: false },
+        { pubkey: owner, isWritable: true, isSigner: true }
+      ];
+      return new import_web3.TransactionInstruction({ programId, keys, data: ixData });
+    }
     case "flaek_delegate_state": {
       const programId = parsePubkey(ctx.config.flaek_program_id, "flaek_program_id");
       const delegationProgramId = parsePubkey(ctx.config.delegation_program_id, "delegation_program_id");
@@ -434,6 +568,32 @@ function parseMembers(value, walletPubkey) {
     const flags = Number(member.flags ?? member.flag ?? 0);
     return { pubkey, flags };
   });
+}
+function resolveStatePda(programId, owner, nameHash) {
+  return import_web3.PublicKey.findProgramAddressSync(
+    nameHash ? [import_buffer.Buffer.from("state"), owner.toBytes(), import_buffer.Buffer.from(nameHash)] : [import_buffer.Buffer.from("state"), owner.toBytes()],
+    programId
+  )[0];
+}
+function serializeAccountType(owner, nameHash) {
+  if (nameHash) {
+    return import_buffer.Buffer.concat([import_buffer.Buffer.from([1]), owner.toBytes(), import_buffer.Buffer.from(nameHash)]);
+  }
+  return import_buffer.Buffer.concat([import_buffer.Buffer.from([0]), owner.toBytes()]);
+}
+function serializeMembersArgs(members) {
+  if (!members || members.length === 0) {
+    return import_buffer.Buffer.from([0]);
+  }
+  const header = import_buffer.Buffer.alloc(1 + 4);
+  header.writeUInt8(1, 0);
+  header.writeUInt32LE(members.length, 1);
+  const entries = members.map((member) => {
+    const flags = import_buffer.Buffer.from([member.flags ?? 0]);
+    const pubkey = parsePubkey(member.pubkey, "member.pubkey").toBytes();
+    return import_buffer.Buffer.concat([flags, import_buffer.Buffer.from(pubkey)]);
+  });
+  return import_buffer.Buffer.concat([header, ...entries]);
 }
 function parsePubkeyList(value, walletPubkey) {
   if (!Array.isArray(value) || value.length === 0) {
@@ -570,9 +730,9 @@ function isBase64(value) {
 var import_meta = {};
 function getDefaultBaseUrl() {
   try {
-    return import_meta?.env?.VITE_API_BASE || "";
+    return import_meta?.env?.VITE_API_BASE || "https://api.flaek.dev";
   } catch {
-    return "";
+    return "https://api.flaek.dev";
   }
 }
 function getStoredToken() {

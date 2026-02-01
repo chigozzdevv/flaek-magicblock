@@ -4,6 +4,7 @@ use ephemeral_rollups_sdk::access_control::{
     instructions::{
         ClosePermissionCpiBuilder,
         CommitAndUndelegatePermissionCpiBuilder,
+        CommitPermissionCpiBuilder,
         CreatePermissionCpiBuilder,
         UpdatePermissionCpiBuilder,
     },
@@ -88,6 +89,23 @@ pub mod flaek_mb {
         Ok(())
     }
 
+    pub fn commit_permission(ctx: Context<CommitPermission>, account_type: AccountType) -> Result<()> {
+        let seed_data = derive_seeds_from_account_type(&account_type);
+        let bump = find_bump(&seed_data);
+        let mut seeds = seed_data;
+        seeds.push(vec![bump]);
+        let seed_refs: Vec<&[u8]> = seeds.iter().map(|s| s.as_slice()).collect();
+
+        CommitPermissionCpiBuilder::new(&ctx.accounts.permission_program)
+            .authority(&ctx.accounts.authority, false)
+            .permissioned_account(&ctx.accounts.permissioned_account, true)
+            .permission(&ctx.accounts.permission)
+            .magic_program(&ctx.accounts.magic_program)
+            .magic_context(&ctx.accounts.magic_context)
+            .invoke_signed(&[seed_refs.as_slice()])?;
+        Ok(())
+    }
+
     pub fn close_permission(
         ctx: Context<ClosePermission>,
         account_type: AccountType,
@@ -150,6 +168,11 @@ pub mod flaek_mb {
         let new_len = state.data.len().saturating_add(data.len());
         require!(new_len <= state.max_len as usize, FlaekError::DataTooLarge);
         state.data.extend_from_slice(&data);
+        Ok(())
+    }
+
+    pub fn close_state(ctx: Context<CloseState>, _name_hash: [u8; 32]) -> Result<()> {
+        let _state = &mut ctx.accounts.state;
         Ok(())
     }
 
@@ -222,6 +245,20 @@ pub struct UpdatePermission<'info> {
 #[commit]
 #[derive(Accounts)]
 pub struct CommitAndUndelegatePermission<'info> {
+    /// CHECK: Checked by permission program CPI
+    pub permissioned_account: UncheckedAccount<'info>,
+    /// CHECK: Checked by permission program CPI
+    #[account(mut)]
+    pub permission: UncheckedAccount<'info>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    /// CHECK: Permission program
+    pub permission_program: UncheckedAccount<'info>,
+}
+
+#[commit]
+#[derive(Accounts)]
+pub struct CommitPermission<'info> {
     /// CHECK: Checked by permission program CPI
     pub permissioned_account: UncheckedAccount<'info>,
     /// CHECK: Checked by permission program CPI
@@ -318,6 +355,21 @@ pub struct DelegateState<'info> {
     pub owner: Signer<'info>,
 }
 
+#[derive(Accounts)]
+#[instruction(name_hash: [u8; 32])]
+pub struct CloseState<'info> {
+    #[account(
+        mut,
+        close = owner,
+        has_one = owner,
+        seeds = [STATE_SEED, owner.key().as_ref(), name_hash.as_ref()],
+        bump = state.bump
+    )]
+    pub state: Account<'info, DynamicState>,
+    #[account(mut)]
+    pub owner: Signer<'info>,
+}
+
 #[account]
 pub struct State {
     pub owner: Pubkey,
@@ -348,11 +400,17 @@ impl DynamicState {
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
 pub enum AccountType {
     State { owner: Pubkey },
+    DynamicState { owner: Pubkey, name_hash: [u8; 32] },
 }
 
 fn derive_seeds_from_account_type(account_type: &AccountType) -> Vec<Vec<u8>> {
     match account_type {
         AccountType::State { owner } => vec![STATE_SEED.to_vec(), owner.to_bytes().to_vec()],
+        AccountType::DynamicState { owner, name_hash } => vec![
+            STATE_SEED.to_vec(),
+            owner.to_bytes().to_vec(),
+            name_hash.to_vec(),
+        ],
     }
 }
 

@@ -106,7 +106,7 @@ CLOUDINARY_API_KEY=...
 CLOUDINARY_API_SECRET=...
 
 # Solana / MagicBlock
-SOLANA_RPC_URL=https://api.devnet.solana.com
+HELIUS_DEVNET_RPC=https://devnet.helius-rpc.com/?api-key=YOUR_KEY
 MAGICBLOCK_ER_RPC_URL=https://api.devnet.solana.com
 MAGICBLOCK_TEE_RPC_URL=https://tee.magicblock.app
 MAGICBLOCK_TEE_WS_URL=wss://tee.magicblock.app
