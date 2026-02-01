@@ -13,7 +13,7 @@ use ephemeral_rollups_sdk::cpi::DelegateConfig;
 
 const STATE_SEED: &[u8] = b"state";
 
-declare_id!("H2iGiWPCT13u76WXmK19pK5ssGh5gmR2NqcnKMVBfAFM");
+declare_id!("9H2L2RwoURMv9pVaW2TWx6uasFuHg4PYW92jaVVDaicW");
 
 #[ephemeral]
 #[program]
@@ -158,9 +158,10 @@ pub mod flaek_mb {
         _name_hash: [u8; 32],
         validator: Option<Pubkey>,
     ) -> Result<()> {
+        let owner_key = ctx.accounts.owner.key();
         let seeds: &[&[u8]] = &[
             STATE_SEED,
-            ctx.accounts.owner.key().as_ref(),
+            owner_key.as_ref(),
             ctx.accounts.state.name_hash.as_ref(),
         ];
         ctx.accounts.delegate_state(

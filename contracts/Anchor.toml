@@ -5,14 +5,14 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-flaek_mb = "H2iGiWPCT13u76WXmK19pK5ssGh5gmR2NqcnKMVBfAFM"
+flaek_mb = "9H2L2RwoURMv9pVaW2TWx6uasFuHg4PYW92jaVVDaicW"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "devnet"
-wallet = "~/.config/solana/id.json"
+wallet = ".anchor/test-wallet.json"
 
 [scripts]
-test = "anchor test"
+test = "node -r ts-node/register ./node_modules/mocha/bin/_mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

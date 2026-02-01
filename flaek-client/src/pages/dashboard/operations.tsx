@@ -5,7 +5,14 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Modal } from '@/components/ui/modal'
 import { navigate } from '@/lib/router'
-import { apiGetOperations, apiGetOperation, apiDeprecateOperation, apiUpdateOperation, apiCreateJob } from '@/lib/api'
+import {
+  apiGetOperations,
+  apiGetOperation,
+  apiDeprecateOperation,
+  apiUpdateOperation,
+  apiCreateJob,
+  apiGetOperationSnippet,
+} from '@/lib/api'
 
 type Operation = {
   operation_id: string
@@ -22,6 +29,9 @@ export default function OperationsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedOp, setSelectedOp] = useState<any>(null)
   const [showDetails, setShowDetails] = useState(false)
+  const [snippet, setSnippet] = useState<any>(null)
+  const [snippetLoading, setSnippetLoading] = useState(false)
+  const [snippetError, setSnippetError] = useState('')
   const [showEdit, setShowEdit] = useState(false)
   const [editingOp, setEditingOp] = useState<any>(null)
   
@@ -45,10 +55,25 @@ export default function OperationsPage() {
     try {
       const data = await apiGetOperation(id)
       setSelectedOp(data)
+      setSnippet(null)
+      setSnippetError('')
       setShowDetails(true)
     } catch (error) {
       console.error('Failed to load operation:', error)
       alert('Failed to load operation details')
+    }
+  }
+
+  async function loadSnippet(operationId: string) {
+    setSnippetLoading(true)
+    setSnippetError('')
+    try {
+      const data = await apiGetOperationSnippet(operationId)
+      setSnippet(data)
+    } catch (error: any) {
+      setSnippetError(error?.message || 'Failed to load snippet')
+    } finally {
+      setSnippetLoading(false)
     }
   }
 
@@ -261,6 +286,50 @@ export default function OperationsPage() {
               <div className="text-xs font-mono bg-white/5 p-2 rounded border border-white/10 break-all">
                 {selectedOp.artifact_uri}
               </div>
+            </div>
+            <div className="pt-2 border-t border-white/10 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-white/70">Integration Snippet</label>
+                <Button
+                  variant="secondary"
+                  onClick={() => loadSnippet(selectedOp.operation_id)}
+                  loading={snippetLoading}
+                  className="text-xs"
+                >
+                  Load Snippet
+                </Button>
+              </div>
+              {snippetError && (
+                <div className="text-xs text-red-400">{snippetError}</div>
+              )}
+              {snippet && (
+                <div className="space-y-3">
+                  <div>
+                    <div className="text-[11px] text-white/50 mb-1">Placeholders</div>
+                    <div className="text-[11px] text-white/70">
+                      {snippet.placeholders?.length ? snippet.placeholders.join(', ') : 'None'}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-white/50 mb-1">Context Example</div>
+                    <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg">
+                      {JSON.stringify(snippet.context_example || {}, null, 2)}
+                    </pre>
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-white/50 mb-1">SDK Snippet</div>
+                    <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg">
+                      {snippet.sdk_snippet}
+                    </pre>
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-white/50 mb-1">API Snippet</div>
+                    <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg">
+                      {snippet.api_snippet}
+                    </pre>
+                  </div>
+                </div>
+              )}
             </div>
             <Button variant="secondary" onClick={() => setShowDetails(false)} className="w-full">
               Close

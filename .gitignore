@@ -16,5 +16,9 @@ Thumbs.db
 # Node
 node_modules/
 
+# Anchor
+contracts/.anchor/
+contracts/target/
+
 # Metadata
 metadata.json
