@@ -38,7 +38,6 @@ export async function apiSignup(input: {
   return request('/auth/signup', { method: 'POST', body: JSON.stringify(input) }) as Promise<{
     user_id: string
     tenant_id: string
-    totp: { secret_base32: string; otpauth_url: string }
   }>
 }
 
@@ -120,7 +119,6 @@ export async function apiMe() {
       name: string
       email: string
       role: string
-      totpEnabled: boolean
       createdAt: string
     }
   }>
@@ -132,24 +130,6 @@ export async function apiChangePassword(input: {
   confirmNewPassword: string
 }) {
   await request('/auth/change-password', { method: 'POST', body: JSON.stringify(input) })
-  return { ok: true }
-}
-
-export async function apiTotpSetup() {
-  return request('/auth/totp/setup', { method: 'POST' }) as Promise<{
-    totp: { secret_base32: string; otpauth_url: string }
-  }>
-}
-
-export async function apiTotpVerifyJwt(code: string) {
-  return request('/auth/totp/verify', {
-    method: 'POST',
-    body: JSON.stringify({ code }),
-  }) as Promise<{ enabled: boolean }>
-}
-
-export async function apiTotpDisable(code: string) {
-  await request('/auth/totp/disable', { method: 'POST', body: JSON.stringify({ code }) })
   return { ok: true }
 }
 

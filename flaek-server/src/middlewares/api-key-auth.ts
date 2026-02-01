@@ -11,7 +11,6 @@ export async function apiKeyAuth(req: Request, res: Response, next: NextFunction
 
   const tenant = await tenantRepository.findByApiKey(token)
   if (!tenant) return res.status(401).json({ code: 'unauthorized', message: 'Invalid API key' })
-
   ;(req as any).tenantId = tenant.id
   ;(req as any).tenant = tenant
   return next()

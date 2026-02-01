@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import type { PropsWithChildren } from 'react'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Topbar } from '@/components/layout/topbar'
@@ -10,6 +10,7 @@ type DashboardLayoutProps = PropsWithChildren<{
 }>
 
 export function DashboardLayout({ children, currentPath }: DashboardLayoutProps) {
+  const [collapsed, setCollapsed] = useState(false)
   useEffect(() => {
     if (!isAuthenticated()) {
       navigate('/signin')
@@ -22,8 +23,16 @@ export function DashboardLayout({ children, currentPath }: DashboardLayoutProps)
 
   return (
     <div className="min-h-screen bg-bg-base text-text-primary">
-      <Sidebar currentPath={currentPath} />
-      <div className="ml-64 flex flex-col min-h-screen pt-16">
+      <Sidebar
+        currentPath={currentPath}
+        collapsed={collapsed}
+        onToggle={() => setCollapsed((c) => !c)}
+      />
+      <div
+        className={`flex flex-col min-h-screen pt-16 transition-[margin] duration-200 ${
+          collapsed ? 'ml-16' : 'ml-64'
+        }`}
+      >
         <Topbar />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>

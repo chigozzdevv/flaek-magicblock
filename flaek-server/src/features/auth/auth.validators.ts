@@ -15,18 +15,10 @@ export const signupSchema = z.object({
     }),
 })
 
-export const verifyTotpSchema = z.object({
-  body: z.object({
-    email: z.string().email(),
-    code: z.string().min(6).max(6),
-  }),
-})
-
 export const loginSchema = z.object({
   body: z.object({
     email: z.string().email(),
     password: z.string().min(8),
-    code: z.string().min(6).max(6).optional(),
   }),
 })
 
@@ -41,14 +33,6 @@ export const changePasswordSchema = z.object({
       message: 'passwords_do_not_match',
       path: ['confirmNewPassword'],
     }),
-})
-
-export const totpVerifyJwtSchema = z.object({
-  body: z.object({ code: z.string().min(6).max(6) }),
-})
-
-export const totpDisableSchema = z.object({
-  body: z.object({ code: z.string().min(6).max(6) }),
 })
 
 export const resetPasswordRequestSchema = z.object({

@@ -17,27 +17,6 @@ export const userRepository = {
     const user = new UserModel(data)
     return user.save()
   },
-  async setTotp(userId: string, enabled: boolean, secret?: string) {
-    return UserModel.findByIdAndUpdate(
-      userId,
-      { totpEnabled: enabled, totpSecret: secret },
-      { new: true },
-    ).exec()
-  },
-  async resetTotpSecret(userId: string, secret: string) {
-    return UserModel.findByIdAndUpdate(
-      userId,
-      { totpEnabled: false, totpSecret: secret },
-      { new: true },
-    ).exec()
-  },
-  async disableTotp(userId: string) {
-    return UserModel.findByIdAndUpdate(
-      userId,
-      { totpEnabled: false, totpSecret: undefined },
-      { new: true },
-    ).exec()
-  },
   async updatePassword(userId: string, passwordHash: string) {
     return UserModel.findByIdAndUpdate(userId, { passwordHash }, { new: true }).exec()
   },

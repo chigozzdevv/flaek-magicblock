@@ -52,9 +52,8 @@ npm run dev
 ```
 
 Login flow (first run):
-1. POST /auth/signup to create owner and tenant; you’ll receive a TOTP secret/URL.
-2. POST /auth/verify-totp with the 6‑digit code.
-3. POST /auth/login to get a JWT; or create an API key and use that as the Bearer token.
+1. POST /auth/signup to create owner and tenant.
+2. POST /auth/login to get a JWT; or create an API key and use that as the Bearer token.
 
 Minimal examples:
 ```bash
@@ -63,17 +62,12 @@ curl -X POST http://localhost:4000/auth/signup \
   -H 'Content-Type: application/json' \
   -d '{"name":"Ada","email":"ada@example.com","password":"passpass","confirmPassword":"passpass","orgName":"Ada Labs"}'
 
-# 2) Verify TOTP
-curl -X POST http://localhost:4000/auth/verify-totp \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"ada@example.com","code":"123456"}'
-
-# 3) Login (returns { jwt })
+# 2) Login (returns { jwt })
 curl -X POST http://localhost:4000/auth/login \
   -H 'Content-Type: application/json' \
-  -d '{"email":"ada@example.com","password":"passpass","code":"123456"}'
+  -d '{"email":"ada@example.com","password":"passpass"}'
 
-# 4) Create an API key (optional; use as Bearer token)
+# 3) Create an API key (optional; use as Bearer token)
 curl -X POST http://localhost:4000/tenants/keys \
   -H 'Authorization: Bearer YOUR_JWT' -H 'Content-Type: application/json' -d '{"name":"default"}'
 ```

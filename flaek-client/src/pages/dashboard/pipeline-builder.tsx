@@ -6,6 +6,8 @@ import ReactFlow, {
   Background,
   Controls,
   Panel,
+  Handle,
+  Position,
 } from 'reactflow'
 import type { Connection, Node, NodeTypes } from 'reactflow'
 import 'reactflow/dist/style.css'
@@ -41,6 +43,18 @@ function BlockNode({ data, selected }: { data: any; selected?: boolean }) {
       }`}
       style={{ borderColor: selected ? blockColor + '99' : blockColor + '55' }}
     >
+      <Handle
+        type="target"
+        position={Position.Left}
+        style={{ background: blockColor, borderColor: blockColor }}
+        className="w-2.5 h-2.5 border-2"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        style={{ background: blockColor, borderColor: blockColor }}
+        className="w-2.5 h-2.5 border-2"
+      />
       <div className="flex items-center justify-between mb-1">
         <div className="text-xs font-semibold" style={{ color: blockColor }}>
           {data.block?.category || 'block'}
@@ -66,6 +80,8 @@ export default function PipelineBuilderPage() {
   const [planning, setPlanning] = useState(false)
   const [planError, setPlanError] = useState('')
   const [templates, setTemplates] = useState<any[]>([])
+  const [configText, setConfigText] = useState('')
+  const [configError, setConfigError] = useState('')
 
   useEffect(() => {
     apiGetBlocks()
@@ -100,6 +116,16 @@ export default function PipelineBuilderPage() {
     setNodes((nds) => [...nds, newNode])
   }
 
+  useEffect(() => {
+    if (!selectedNode) {
+      setConfigText('')
+      setConfigError('')
+      return
+    }
+    setConfigText(JSON.stringify(selectedNode.data.config || {}, null, 2))
+    setConfigError('')
+  }, [selectedNode?.id])
+
   function updateSelectedConfig(raw: string) {
     if (!selectedNode) return
     try {
@@ -110,9 +136,29 @@ export default function PipelineBuilderPage() {
         ),
       )
       setSelectedNode({ ...selectedNode, data: { ...selectedNode.data, config: parsed } })
+      setConfigText(JSON.stringify(parsed, null, 2))
+      setConfigError('')
     } catch {
-      // ignore parsing errors
+      setConfigError('Invalid JSON')
     }
+  }
+
+  function updateSelectedConfigObject(nextConfig: Record<string, any>) {
+    if (!selectedNode) return
+    setNodes((nds) =>
+      nds.map((n) =>
+        n.id === selectedNode.id ? { ...n, data: { ...n.data, config: nextConfig } } : n,
+      ),
+    )
+    setSelectedNode({ ...selectedNode, data: { ...selectedNode.data, config: nextConfig } })
+    setConfigText(JSON.stringify(nextConfig, null, 2))
+    setConfigError('')
+  }
+
+  function coerceValue(type: string, value: string | boolean) {
+    if (type === 'number') return value === '' ? '' : Number(value)
+    if (type === 'boolean') return Boolean(value)
+    return value
   }
 
   async function handlePlan() {
@@ -330,15 +376,60 @@ export default function PipelineBuilderPage() {
               </button>
             </div>
             <div className="mt-4">
+              {selectedNode.data.block?.inputs?.length > 0 && (
+                <div className="space-y-3">
+                  <div className="text-xs font-semibold text-white/70">Inputs</div>
+                  {selectedNode.data.block.inputs.map((input: any) => {
+                    const current = selectedNode.data.config?.[input.name]
+                    const isNumber = input.type === 'number'
+                    const isBoolean = input.type === 'boolean'
+                    return (
+                      <label key={input.name} className="block text-xs text-white/60">
+                        <div className="mb-1 flex items-center justify-between">
+                          <span>
+                            {input.name}
+                            {input.required ? ' *' : ''}
+                          </span>
+                          <span className="text-[10px] text-white/40">{input.type}</span>
+                        </div>
+                        {isBoolean ? (
+                          <input
+                            type="checkbox"
+                            checked={Boolean(current)}
+                            onChange={(e) => {
+                              const next = { ...(selectedNode.data.config || {}) }
+                              next[input.name] = coerceValue(input.type, e.target.checked)
+                              updateSelectedConfigObject(next)
+                            }}
+                          />
+                        ) : (
+                          <input
+                            type={isNumber ? 'number' : 'text'}
+                            value={current ?? ''}
+                            onChange={(e) => {
+                              const next = { ...(selectedNode.data.config || {}) }
+                              next[input.name] = coerceValue(input.type, e.target.value)
+                              updateSelectedConfigObject(next)
+                            }}
+                            className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-white"
+                            placeholder={input.description || ''}
+                          />
+                        )}
+                      </label>
+                    )
+                  })}
+                </div>
+              )}
               <label className="text-xs font-semibold text-white/70 mb-2 block">
                 Config (JSON)
               </label>
               <textarea
-                key={selectedNode.id}
                 className="w-full h-48 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white font-mono"
-                defaultValue={JSON.stringify(selectedNode.data.config || {}, null, 2)}
+                value={configText}
+                onChange={(e) => setConfigText(e.target.value)}
                 onBlur={(e) => updateSelectedConfig(e.target.value)}
               />
+              {configError && <div className="text-[11px] text-red-400 mt-2">{configError}</div>}
             </div>
           </div>
         )}
