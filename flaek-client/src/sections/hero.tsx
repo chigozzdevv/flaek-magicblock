@@ -57,9 +57,15 @@ export default function Hero() {
       </div>
       <Modal open={demoOpen} onClose={() => setDemoOpen(false)} title="Flaek demo">
         <div className="relative w-full pt-[56.25%] rounded-xl overflow-hidden border border-white/10 bg-black/40">
-          <div className="absolute inset-0 flex items-center justify-center text-sm text-white/60">
-            Demo video placeholder
-          </div>
+          <iframe
+            className="absolute inset-0 h-full w-full"
+            src="https://www.youtube.com/embed/aoc7ihtRmek"
+            title="flaek.dev demo | MagicBlock Solana Privacy Track"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            loading="lazy"
+          />
         </div>
       </Modal>
     </section>
