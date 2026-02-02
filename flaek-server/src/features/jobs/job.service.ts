@@ -47,7 +47,7 @@ function stringifyForTemplate(value: any) {
   return JSON.stringify(value)
 }
 
-function resolveValueWithContext(value: any, context: Record<string, any>) {
+function resolveValueWithContext(value: any, context: Record<string, any>): any {
   if (typeof value === 'string') {
     const directMatch = value.match(DIRECT_CTX_RE)
     if (directMatch) {
