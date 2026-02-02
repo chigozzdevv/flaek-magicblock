@@ -32,6 +32,7 @@ export default function OperationsPage() {
   const [snippet, setSnippet] = useState<any>(null)
   const [snippetLoading, setSnippetLoading] = useState(false)
   const [snippetError, setSnippetError] = useState('')
+  const [copiedKey, setCopiedKey] = useState<'sdk' | 'api' | null>(null)
   const [showEdit, setShowEdit] = useState(false)
   const [editingOp, setEditingOp] = useState<any>(null)
 
@@ -73,6 +74,36 @@ export default function OperationsPage() {
       setSnippetError(error?.message || 'Failed to load snippet')
     } finally {
       setSnippetLoading(false)
+    }
+  }
+
+  async function copyToClipboard(text: string) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text)
+        return true
+      }
+      throw new Error('clipboard_unavailable')
+    } catch {
+      const el = document.createElement('textarea')
+      el.value = text
+      el.setAttribute('readonly', '')
+      el.style.position = 'absolute'
+      el.style.left = '-9999px'
+      document.body.appendChild(el)
+      el.focus()
+      el.select()
+      const success = document.execCommand('copy')
+      document.body.removeChild(el)
+      return success
+    }
+  }
+
+  async function handleCopy(key: 'sdk' | 'api', text: string) {
+    const ok = await copyToClipboard(text)
+    if (ok) {
+      setCopiedKey(key)
+      window.setTimeout(() => setCopiedKey(null), 1400)
     }
   }
 
@@ -326,20 +357,38 @@ export default function OperationsPage() {
                   </div>
                   <div>
                     <div className="text-[11px] text-white/50 mb-1">Context Example</div>
-                    <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg">
-                      {JSON.stringify(snippet.context_example || {}, null, 2)}
+                    <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg font-mono">
+                      <code>{JSON.stringify(snippet.context_example || {}, null, 2)}</code>
                     </pre>
                   </div>
                   <div>
-                    <div className="text-[11px] text-white/50 mb-1">SDK Snippet</div>
-                    <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg">
-                      {snippet.sdk_snippet}
+                    <div className="flex items-center justify-between">
+                      <div className="text-[11px] text-white/50 mb-1">SDK Snippet</div>
+                      <Button
+                        variant="secondary"
+                        className="text-xs"
+                        onClick={() => handleCopy('sdk', snippet.sdk_snippet)}
+                      >
+                        {copiedKey === 'sdk' ? 'Copied' : 'Copy'}
+                      </Button>
+                    </div>
+                    <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg font-mono">
+                      <code>{snippet.sdk_snippet}</code>
                     </pre>
                   </div>
                   <div>
-                    <div className="text-[11px] text-white/50 mb-1">API Snippet</div>
-                    <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg">
-                      {snippet.api_snippet}
+                    <div className="flex items-center justify-between">
+                      <div className="text-[11px] text-white/50 mb-1">API Snippet</div>
+                      <Button
+                        variant="secondary"
+                        className="text-xs"
+                        onClick={() => handleCopy('api', snippet.api_snippet)}
+                      >
+                        {copiedKey === 'api' ? 'Copied' : 'Copy'}
+                      </Button>
+                    </div>
+                    <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg font-mono">
+                      <code>{snippet.api_snippet}</code>
                     </pre>
                   </div>
                 </div>

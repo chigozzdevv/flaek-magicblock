@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import ReactFlow, {
   addEdge,
   useEdgesState,
@@ -20,6 +20,7 @@ import {
   apiCreateContext,
   apiCreateOperation,
   apiGetBlocks,
+  apiGetOperationSnippet,
   apiGetPipelineTemplates,
   apiTestPipeline,
 } from '@/lib/api'
@@ -96,6 +97,11 @@ export default function PipelineBuilderPage() {
   const [configError, setConfigError] = useState('')
   const [configDirty, setConfigDirty] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [showSnippetModal, setShowSnippetModal] = useState(false)
+  const [snippet, setSnippet] = useState<any>(null)
+  const [snippetLoading, setSnippetLoading] = useState(false)
+  const [snippetError, setSnippetError] = useState('')
+  const [copiedKey, setCopiedKey] = useState<'sdk' | 'api' | null>(null)
 
   useEffect(() => {
     apiGetBlocks()
@@ -219,6 +225,51 @@ export default function PipelineBuilderPage() {
     }
   }
 
+  async function loadSnippet(operationId: string) {
+    setSnippetLoading(true)
+    setSnippetError('')
+    try {
+      const data = await apiGetOperationSnippet(operationId)
+      setSnippet(data)
+      setShowSnippetModal(true)
+    } catch (error: any) {
+      setSnippetError(error?.message || 'Failed to load snippet')
+      setShowSnippetModal(true)
+    } finally {
+      setSnippetLoading(false)
+    }
+  }
+
+  async function copyToClipboard(text: string) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text)
+        return true
+      }
+      throw new Error('clipboard_unavailable')
+    } catch {
+      const el = document.createElement('textarea')
+      el.value = text
+      el.setAttribute('readonly', '')
+      el.style.position = 'absolute'
+      el.style.left = '-9999px'
+      document.body.appendChild(el)
+      el.focus()
+      el.select()
+      const success = document.execCommand('copy')
+      document.body.removeChild(el)
+      return success
+    }
+  }
+
+  async function handleCopy(key: 'sdk' | 'api', text: string) {
+    const ok = await copyToClipboard(text)
+    if (ok) {
+      setCopiedKey(key)
+      window.setTimeout(() => setCopiedKey(null), 1400)
+    }
+  }
+
   function deleteNode(nodeId: string) {
     setNodes((nds) => nds.filter((n) => n.id !== nodeId))
     setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId))
@@ -282,13 +333,18 @@ export default function PipelineBuilderPage() {
           const contextRes = await apiCreateContext({ name: ctxName, schema: parsedSchema })
           contextId = contextRes.context_id
         }
-        await apiCreateOperation({
+        const created = await apiCreateOperation({
           name: name.trim(),
           version: version.trim(),
           pipeline,
           ...(contextId ? { contextId } : {}),
         })
         onClose()
+        setSnippet(null)
+        setSnippetError('')
+        if (created?.operation_id) {
+          await loadSnippet(created.operation_id)
+        }
       } catch (e: any) {
         setError(e.message || 'Failed to save flow')
       } finally {
@@ -551,6 +607,65 @@ export default function PipelineBuilderPage() {
           <pre className="text-xs whitespace-pre-wrap text-white/80">
             {JSON.stringify(planResult, null, 2)}
           </pre>
+        </Modal>
+      )}
+
+      {showSnippetModal && (
+        <Modal
+          open={showSnippetModal}
+          onClose={() => setShowSnippetModal(false)}
+          title="Integration Snippet"
+        >
+          <div className="space-y-3">
+            {snippetLoading && <div className="text-xs text-white/60">Loading snippet…</div>}
+            {snippetError && <div className="text-xs text-red-400">{snippetError}</div>}
+            {snippet && (
+              <div className="space-y-3">
+                <div>
+                  <div className="text-[11px] text-white/50 mb-1">Placeholders</div>
+                  <div className="text-[11px] text-white/70">
+                    {snippet.placeholders?.length ? snippet.placeholders.join(', ') : 'None'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-white/50 mb-1">Context Example</div>
+                  <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg font-mono">
+                    <code>{JSON.stringify(snippet.context_example || {}, null, 2)}</code>
+                  </pre>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[11px] text-white/50 mb-1">SDK Snippet</div>
+                    <Button
+                      variant="secondary"
+                      className="text-xs"
+                      onClick={() => handleCopy('sdk', snippet.sdk_snippet)}
+                    >
+                      {copiedKey === 'sdk' ? 'Copied' : 'Copy'}
+                    </Button>
+                  </div>
+                  <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg font-mono">
+                    <code>{snippet.sdk_snippet}</code>
+                  </pre>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[11px] text-white/50 mb-1">API Snippet</div>
+                    <Button
+                      variant="secondary"
+                      className="text-xs"
+                      onClick={() => handleCopy('api', snippet.api_snippet)}
+                    >
+                      {copiedKey === 'api' ? 'Copied' : 'Copy'}
+                    </Button>
+                  </div>
+                  <pre className="text-[11px] whitespace-pre-wrap text-white/70 bg-black/30 p-3 rounded-lg font-mono">
+                    <code>{snippet.api_snippet}</code>
+                  </pre>
+                </div>
+              </div>
+            )}
+          </div>
         </Modal>
       )}
     </div>
