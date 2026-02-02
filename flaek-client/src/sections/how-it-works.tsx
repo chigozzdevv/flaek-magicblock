@@ -27,7 +27,7 @@ export default function HowItWorks() {
             title="Define your context"
             description="Describe the runtime context your flow expects. Add fields, types, and validation rules for dynamic inputs."
           >
-            <div className="aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5 flex flex-col justify-center">
+            <div className="w-full aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5 flex flex-col justify-center">
               <div className="space-y-4">
                 <div className="text-xs uppercase tracking-wider text-white/50 mb-4">
                   Context fields
@@ -47,7 +47,7 @@ export default function HowItWorks() {
             title="Build your flow"
             description="Compose MagicBlock ER/PER flows to control permissions and execute Solana program instructions."
           >
-            <div className="aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5 flex flex-col justify-start">
+            <div className="w-full aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5 flex flex-col justify-start">
               <div className="text-xs uppercase tracking-wider text-white/50 mb-3">Flow steps</div>
               <div className="space-y-2.5">
                 <FlowStep name="Create State" category="state" />
@@ -68,7 +68,7 @@ export default function HowItWorks() {
             title="Run & verify results"
             description="Execute jobs with your context and published flow. Track execution logs and signatures in the dashboard."
           >
-            <div className="aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5 flex flex-col justify-center">
+            <div className="w-full aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5 flex flex-col justify-center">
               <div className="space-y-3">
                 <ResultCard
                   label="POST /v1/jobs"
@@ -116,7 +116,7 @@ function StepCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: step * 0.1 }}
-      className="group relative h-full flex flex-col rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl p-8 hover:border-white/15 transition-all duration-300"
+      className="group relative h-full flex flex-col rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl p-8 hover:border-white/15 transition-all duration-300 min-w-0"
     >
       <div className="text-xs uppercase tracking-widest text-white/50 mb-3">Step {step}</div>
       <h3 className="text-2xl md:text-3xl font-semibold mb-3">{title}</h3>
