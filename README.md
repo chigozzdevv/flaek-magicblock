@@ -1,218 +1,238 @@
 # Flaek
 
-Flaek lets you build MagicBlock ER/PER flows for Solana. Compose permission and delegation primitives with a visual block graph, then execute on devnet using TEE‑backed RPC with client‑signed transactions.
+Flaek is a visual builder + API for composing MagicBlock ER/PER flows, injecting runtime context, and running jobs with user wallets. Build a flow once, publish it as an Operation, and execute it from your app with consistent logs and signatures.
 
-At a glance:
-- flaek-server: TypeScript/Express API that manages tenants, flows (operations), run plans, credits, and MagicBlock config.
-- flaek-client: React/Vite UI to design flows and generate execution plans.
-- contracts/: Anchor workspace with MagicBlock permission/delegation hooks.
-
-## How to think about it
-- Blocks are MagicBlock primitives (permission, delegation, program instructions). You connect them into a flow.
-- An Operation is a versioned, saved flow you can reuse.
-- A Job is an execution plan plus any submitted transaction signatures.
-
-## Tech stack
-- Server: Node.js, TypeScript, Express 5, MongoDB, Socket.IO, Zod, Pino. MagicBlock SDK + Solana web3.
-- Client: React + Vite + Tailwind, React Flow.
-- Contracts: Anchor + MagicBlock permission/delegation hooks.
+## What you get
+- **Visual builder** for MagicBlock state, permission, and delegation blocks
+- **Context injection** with `{{placeholders}}` resolved at runtime
+- **Operations + Jobs** lifecycle: publish a flow, run jobs, stream logs
+- **SDK + API snippets** generated per operation
 
 ---
 
-## Quick start (local dev)
+## Core concepts
+- **Block**: A MagicBlock primitive (state, permission, delegation, program instruction, magic commit/undelegate).
+- **Flow / Pipeline**: A graph of blocks.
+- **Operation**: A versioned, published flow you can reuse.
+- **Job**: A single execution of an operation with context + wallet.
+- **Context**: A JSON schema that defines runtime inputs and powers placeholders.
 
-Prerequisites:
+---
+
+## How it works (end‑to‑end)
+1) **Design** a flow in the builder using MagicBlock blocks.
+2) **Define context** (JSON schema) for runtime inputs like `roomHash`, `eventPayload`.
+3) **Publish** the flow as an operation. Flaek generates SDK/API snippets.
+4) **Run** jobs from your app using the SDK with a user wallet.
+5) **Track** job status, logs, and signatures in the dashboard.
+
+---
+
+## Example flows
+
+### ER (simple game state update)
+**Blocks (order):**
+1. `flaek_create_state`
+2. `flaek_update_state` (or `flaek_append_state`)
+3. `mb_magic_commit_undelegate`
+
+**Configs:**
+```json
+// create_state
+{ "name_hash": "{{roomHash}}", "max_len": 1024, "data": "{{initialState}}" }
+
+// update_state
+{ "name_hash": "{{roomHash}}", "data": "{{gameState}}" }
+
+// magic_commit_undelegate
+{ "name_hash": "{{roomHash}}" }
+```
+
+**Context (runtime):**
+```json
+{
+  "roomHash": "hex:...32bytes...",
+  "initialState": { "score": 0, "inventory": [] },
+  "gameState": { "score": 12, "inventory": ["sword"] }
+}
+```
+
+### PER (permissioned flow)
+**Blocks (typical order):**
+1. `flaek_create_state`
+2. `flaek_create_permission` (Flaek)
+3. `flaek_delegate_state`
+4. `program_instruction` (your program call)
+5. `flaek_commit_permission` (Flaek)
+6. `mb_magic_commit_undelegate`
+
+Use the same placeholder strategy; PER adds permission blocks and a TEE‑backed execution path.
+
+---
+
+## SDK usage
+```ts
+import { createFlaekClient } from '@flaek/magicblock'
+
+const flaek = createFlaekClient({
+  baseUrl: 'https://api.flaek.dev',
+  authToken: '<API_KEY_OR_JWT>',
+})
+
+await flaek.runJob({
+  operationId: 'op_123',
+  wallet: window.solana,
+  executionMode: 'er',
+  context: {
+    roomHash: 'hex:...32bytes...',
+    eventPayload: { scoreDelta: 5, itemId: 'sword' },
+  },
+  onLog: (line) => console.log(line),
+})
+```
+
+---
+
+## Integration snippets
+
+### SDK job runner (packages/magicblock/src/client.ts)
+```ts
+// createFlaekClient().runJob(...)
+const config = await getMagicblockConfig()
+const job = await createJob({ operation: operationId, execution_mode: executionMode, context })
+
+const result = await executePlanWithWallet(
+  { steps: plan.steps },
+  wallet,
+  config,
+  { mode: executionMode, validator: validator || config.default_validator, verifyTee, onLog }
+)
+
+await submitJob(job.job_id, result.signatures)
+if (autoComplete) await completeJob(job.job_id)
+```
+
+### Plan execution loop (packages/magicblock/src/magicblock.ts)
+```ts
+for (const step of plan.steps) {
+  const instruction = buildInstructionFromStep(step, { walletPubkey, validator, config })
+  const tx = new Transaction().add(instruction)
+  const signature = await signAndSendTransaction(connection, wallet, tx, walletPubkey)
+  signatures.push(signature)
+}
+```
+
+### Context substitution (flaek-server/src/features/jobs/job.service.ts)
+```ts
+const CONTEXT_TOKEN_RE = /\{\{\s*([^}]+?)\s*\}\}/g
+
+function applyContextToPlan(plan: ExecutionPlan, context: Record<string, any>) {
+  return {
+    ...plan,
+    steps: plan.steps.map((step) => ({
+      ...step,
+      inputs: resolveValueWithContext(step.inputs ?? {}, context),
+    })),
+  }
+}
+```
+
+---
+
+## API usage (quick)
+```bash
+# Create a context schema
+curl -X POST https://api.flaek.dev/v1/contexts \
+  -H 'Authorization: Bearer <TOKEN>' -H 'Content-Type: application/json' \
+  -d '{"name":"game-context","schema":{"type":"object","properties":{"roomHash":{"type":"string"},"eventPayload":{"type":"object"}},"required":["roomHash","eventPayload"]}}'
+
+# Create an operation (flow)
+curl -X POST https://api.flaek.dev/v1/pipelines/operations \
+  -H 'Authorization: Bearer <TOKEN>' -H 'Content-Type: application/json' \
+  -d '{"name":"game-flow","version":"1.0.0","pipeline":{...},"datasetId":"<contextId>"}'
+
+# Get integration snippet
+curl https://api.flaek.dev/v1/operations/<operationId>/snippet \
+  -H 'Authorization: Bearer <TOKEN>'
+
+# Create a job
+curl -X POST https://api.flaek.dev/v1/jobs \
+  -H 'Authorization: Bearer <TOKEN>' -H 'Content-Type: application/json' \
+  -d '{"operation":"<operationId>","execution_mode":"er","context":{"roomHash":"hex:...","eventPayload":{}}}'
+```
+
+---
+
+## Repository structure
+```
+contracts/          # Anchor programs (Flaek + MagicBlock hooks)
+flaek-server/        # API, job orchestration, plans, logs
+flaek-client/        # Dashboard + flow builder
+packages/magicblock/ # SDK package
+```
+
+---
+
+## Local dev setup
+
+Prereqs:
 - Node.js 20+
-- MongoDB and Redis (local or Docker)
+- MongoDB + Redis (local or Docker)
 
-Start dependencies with Docker (recommended):
+Docker (recommended):
 ```bash
 docker run --name mongo -p 27017:27017 -d mongo:7
 docker run --name redis -p 6379:6379 -d redis:7
 ```
 
-1) Server setup
+### Server
 ```bash
 cd flaek-server
 npm install
-cp .env .env.local # or create .env from the template below
-# Edit .env to match your local services
+cp ../.env ./.env   # ensure env is in this folder
 npm run dev
-# Server listens on http://localhost:4000 by default
 ```
 
-2) Client setup
+### Client
 ```bash
 cd ../flaek-client
 npm install
 cp .env.example .env
+# set API base URL
 echo "VITE_API_BASE=http://localhost:4000" > .env
 npm run dev
-# UI on http://localhost:5173
 ```
 
-Login flow (first run):
-1. POST /auth/signup to create owner and tenant.
-2. POST /auth/login to get a JWT; or create an API key and use that as the Bearer token.
-
-Minimal examples:
-```bash
-# 1) Signup
-curl -X POST http://localhost:4000/auth/signup \
-  -H 'Content-Type: application/json' \
-  -d '{"name":"Ada","email":"ada@example.com","password":"passpass","confirmPassword":"passpass","orgName":"Ada Labs"}'
-
-# 2) Login (returns { jwt })
-curl -X POST http://localhost:4000/auth/login \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"ada@example.com","password":"passpass"}'
-
-# 3) Create an API key (optional; use as Bearer token)
-curl -X POST http://localhost:4000/tenants/keys \
-  -H 'Authorization: Bearer YOUR_JWT' -H 'Content-Type: application/json' -d '{"name":"default"}'
-```
+> Note: the server loads `.env` from **flaek-server/**. If you keep `.env` at repo root, start with:
+> `DOTENV_CONFIG_PATH=../.env npm run dev`
 
 ---
 
-## Configuration
-
-Server environment (.env) — required keys
+## Environment variables (server)
+Key values you must set:
 ```bash
-# Base
-NODE_ENV=development
-PORT=4000
-
-# Datastores
 MONGO_URI=mongodb://localhost:27017/flaek
 REDIS_URL=redis://localhost:6379
-
-# Auth & security
 JWT_SECRET=replace-with-long-random
-JWT_EXPIRES_IN=7d
 API_KEY_HASH_SALT=replace-with-long-random
 JOB_ENC_KEY=replace-with-32+chars
-INGEST_TTL_SECONDS=3600
-
-# Cloudinary (used for object storage/assets)
-CLOUDINARY_CLOUD_NAME=...
-CLOUDINARY_API_KEY=...
-CLOUDINARY_API_SECRET=...
-
-# Solana / MagicBlock
 HELIUS_DEVNET_RPC=https://devnet.helius-rpc.com/?api-key=YOUR_KEY
-MAGICBLOCK_ER_RPC_URL=https://api.devnet.solana.com
-MAGICBLOCK_TEE_RPC_URL=https://tee.magicblock.app
-MAGICBLOCK_TEE_WS_URL=wss://tee.magicblock.app
-MAGICBLOCK_PERMISSION_PROGRAM_ID=ACLseoPoyC3cBqoUtkbjZ4aDrkurZW86v19pXz2XQnp1
-MAGICBLOCK_DELEGATION_PROGRAM_ID=DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh
-MAGICBLOCK_DEFAULT_VALIDATOR=MUS3hc9TCw4cGC12vHNoYcCGzJG1txjgQLZWVoeNHNd
-FLAEK_MB_PROGRAM_ID=H2iGiWPCT13u76WXmK19pK5ssGh5gmR2NqcnKMVBfAFM
 ```
-
-Client environment (.env)
-```bash
-VITE_API_BASE=http://localhost:4000
-```
-
-Notes:
-- The server validates env on boot (Zod). Missing values will fail fast.
-- PER flows require TEE authorization and a client‑signed token.
-
----
-
-## Using the API
-
-Authentication options:
-- Bearer JWT (owner user): Authorization: Bearer <JWT>
-- Bearer API key (tenant scope): Authorization: Bearer <API_KEY>
-
-Create a context schema
-```bash
-curl -X POST http://localhost:4000/v1/contexts \
-  -H 'Authorization: Bearer <TOKEN>' -H 'Content-Type: application/json' \
-  -d '{"name":"game-context","schema":{"type":"object","properties":{"playerHash":{"type":"string"},"gameState":{"type":"object"}},"required":["playerHash"]}}'
-```
-
-Explore blocks and templates
-```bash
-curl http://localhost:4000/v1/blocks            # list blocks
-curl http://localhost:4000/v1/pipelines/templates # sample pipelines
-```
-
-Create a flow from a template
-```bash
-TEMPLATE=$(curl -s http://localhost:4000/v1/pipelines/templates | jq -c '.templates[0].pipeline')
-curl -X POST http://localhost:4000/v1/pipelines/operations \
-  -H 'Authorization: Bearer <TOKEN>' -H 'Content-Type: application/json' \
-  -d '{
-    "name":"demo-flow","version":"1.0.0",
-    "pipeline":'"$TEMPLATE"'
-  }'
-```
-
-Build an execution plan
-```bash
-curl -X POST http://localhost:4000/v1/pipelines/execute \
-  -H 'Authorization: Bearer <TOKEN>' -H 'Content-Type: application/json' \
-  -d '{
-    "pipeline": {"nodes":[{"id":"create","blockId":"mb_create_permission","data":{"members":[]}}],
-                 "edges":[]}
-  }'
-```
-
-Create a run plan
-```bash
-curl -X POST http://localhost:4000/v1/jobs \
-  -H 'Authorization: Bearer <TOKEN>' -H 'Content-Type: application/json' \
-  -d '{"operation":"OPERATION_ID","execution_mode":"per","context":{"playerHash":"hex:...","gameState":{"score":12}}}'
-```
-
-Check job status
-```bash
-curl -H 'Authorization: Bearer <TOKEN>' http://localhost:4000/v1/jobs/JOB_ID
-```
-
-Credits (simple wallet)
-```bash
-# Get balance
-curl -H 'Authorization: Bearer <TOKEN>' http://localhost:4000/v1/credits
-# Top up (cents)
-curl -X POST http://localhost:4000/v1/credits/topup \
-  -H 'Authorization: Bearer <TOKEN>' -H 'Content-Type: application/json' \
-  -d '{"amount_cents": 10000}'
-```
-
----
-
-## MagicBlock ER/PER (what’s needed)
-- ER flows require delegation hooks in your program and a validator pubkey for delegation.
-- PER flows require Permission Program hooks plus TEE authorization on the client.
-- If you’re only exploring the UI and dry‑run execution, the server will still require the env variables, but won’t submit actual on‑chain transactions without a valid key.
-
-MagicBlock ER/PER runs on devnet validators and the TEE RPC. Configure endpoints and program IDs via the `MAGICBLOCK_*` environment variables above.
+Other MagicBlock settings are in `.env.example` with defaults.
 
 ---
 
 ## Troubleshooting
-- 401 unauthorized: use `Authorization: Bearer <JWT>` or `Bearer <API_KEY>` depending on endpoint. Unified auth accepts both for most `/v1/*` routes.
-- Job creation fails with quota_exceeded: top up credits via `/v1/credits/topup`.
-- Missing env on boot: the server validates .env; copy the template above and fill required fields.
-- CORS in dev: server allows `http://localhost:5173` by default; set `VITE_API_BASE` to `http://localhost:4000`.
-- Mongo/Redis connection errors: ensure services are running and URIs match.
+- **401**: make sure `Authorization: Bearer <JWT|API_KEY>` is set.
+- **Missing env**: server validates `.env` on boot (Zod).
+- **CORS**: set `VITE_API_BASE` to your server URL.
 
 ---
 
-## Useful scripts
-Server (`flaek-server`):
-- `npm run dev` – start API with hot reload.
-- `npm run build && npm start` – build to `dist/` and start.
-- `npm run worker` – no-op placeholder (execution is client-signed).
+## Publish / snippets
+After you publish a flow, Flaek can generate:
+- SDK snippet
+- API snippet
+- Required placeholders
 
-Client (`flaek-client`):
-- `npm run dev` – run Vite dev server.
-- `npm run build` – production build.
-
----
-
-## What this gives you
-Use Flaek to prototype and ship privacy‑preserving features fast: “calculate a credit score without seeing income,” “price a quote without revealing raw inputs,” or “tally a vote without exposing ballots.” You design a pipeline like you’d describe it to a teammate—inputs, a few blocks, an output—and the system handles encryption, queuing, execution, and logging for you.
+You can retrieve it from `/v1/operations/:id/snippet` or via the dashboard.
