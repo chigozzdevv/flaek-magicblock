@@ -26,7 +26,6 @@ export default function HowItWorks() {
             step={1}
             title="Define your context"
             description="Describe the runtime context your flow expects. Add fields, types, and validation rules for dynamic inputs."
-            link="Define context"
           >
             <div className="aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5 flex flex-col justify-center">
               <div className="space-y-4">
@@ -47,7 +46,6 @@ export default function HowItWorks() {
             step={2}
             title="Build your flow"
             description="Compose MagicBlock ER/PER flows to control permissions and execute Solana program instructions."
-            link="Open builder"
           >
             <div className="aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5 flex flex-col justify-start">
               <div className="text-xs uppercase tracking-wider text-white/50 mb-3">Flow steps</div>
@@ -69,7 +67,6 @@ export default function HowItWorks() {
             step={3}
             title="Run & verify results"
             description="Execute jobs with your context and published flow. Track execution logs and signatures in the dashboard."
-            link="View examples"
           >
             <div className="aspect-[4/3] rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-5 flex flex-col justify-center">
               <div className="space-y-3">
@@ -105,14 +102,12 @@ function StepCard({
   title,
   description,
   note,
-  link,
   children,
 }: {
   step: number
   title: string
   description: string
   note?: string
-  link: string
   children: React.ReactNode
 }) {
   return (
