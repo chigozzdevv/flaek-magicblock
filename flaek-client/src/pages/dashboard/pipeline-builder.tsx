@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import ReactFlow, {
   addEdge,
   useEdgesState,
@@ -8,6 +8,7 @@ import ReactFlow, {
   Panel,
   Handle,
   Position,
+  ConnectionLineType,
 } from 'reactflow'
 import type { Connection, Node, NodeTypes } from 'reactflow'
 import 'reactflow/dist/style.css'
@@ -34,7 +35,15 @@ type BlockDef = {
   color?: string
 }
 
-function BlockNode({ data, selected }: { data: any; selected?: boolean }) {
+function BlockNode({
+  data,
+  selected,
+  isConnectable,
+}: {
+  data: any
+  selected?: boolean
+  isConnectable?: boolean
+}) {
   const blockColor = data.block?.color || '#64748B'
   return (
     <div
@@ -46,14 +55,16 @@ function BlockNode({ data, selected }: { data: any; selected?: boolean }) {
       <Handle
         type="target"
         position={Position.Left}
+        isConnectable={isConnectable}
         style={{ background: blockColor, borderColor: blockColor }}
-        className="w-2.5 h-2.5 border-2"
+        className="w-3 h-3 border-2 shadow-[0_0_0_3px_rgba(255,255,255,0.06)]"
       />
       <Handle
         type="source"
         position={Position.Right}
+        isConnectable={isConnectable}
         style={{ background: blockColor, borderColor: blockColor }}
-        className="w-2.5 h-2.5 border-2"
+        className="w-3 h-3 border-2 shadow-[0_0_0_3px_rgba(255,255,255,0.06)]"
       />
       <div className="flex items-center justify-between mb-1">
         <div className="text-xs font-semibold" style={{ color: blockColor }}>
@@ -80,8 +91,11 @@ export default function PipelineBuilderPage() {
   const [planning, setPlanning] = useState(false)
   const [planError, setPlanError] = useState('')
   const [templates, setTemplates] = useState<any[]>([])
+  const [draftConfig, setDraftConfig] = useState<Record<string, any>>({})
   const [configText, setConfigText] = useState('')
   const [configError, setConfigError] = useState('')
+  const [configDirty, setConfigDirty] = useState(false)
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   useEffect(() => {
     apiGetBlocks()
@@ -118,26 +132,29 @@ export default function PipelineBuilderPage() {
 
   useEffect(() => {
     if (!selectedNode) {
+      setDraftConfig({})
       setConfigText('')
       setConfigError('')
+      setConfigDirty(false)
+      setShowAdvanced(false)
       return
     }
-    setConfigText(JSON.stringify(selectedNode.data.config || {}, null, 2))
+    const initialConfig = selectedNode.data.config || {}
+    setDraftConfig(initialConfig)
+    setConfigText(JSON.stringify(initialConfig, null, 2))
     setConfigError('')
+    setConfigDirty(false)
+    setShowAdvanced(false)
   }, [selectedNode?.id])
 
   function updateSelectedConfig(raw: string) {
     if (!selectedNode) return
     try {
       const parsed = raw.trim() ? JSON.parse(raw) : {}
-      setNodes((nds) =>
-        nds.map((n) =>
-          n.id === selectedNode.id ? { ...n, data: { ...n.data, config: parsed } } : n,
-        ),
-      )
-      setSelectedNode({ ...selectedNode, data: { ...selectedNode.data, config: parsed } })
+      setDraftConfig(parsed)
       setConfigText(JSON.stringify(parsed, null, 2))
       setConfigError('')
+      setConfigDirty(true)
     } catch {
       setConfigError('Invalid JSON')
     }
@@ -151,8 +168,25 @@ export default function PipelineBuilderPage() {
       ),
     )
     setSelectedNode({ ...selectedNode, data: { ...selectedNode.data, config: nextConfig } })
+    setDraftConfig(nextConfig)
     setConfigText(JSON.stringify(nextConfig, null, 2))
     setConfigError('')
+    setConfigDirty(false)
+  }
+
+  function updateDraftConfig(nextConfig: Record<string, any>) {
+    setDraftConfig(nextConfig)
+    setConfigText(JSON.stringify(nextConfig, null, 2))
+    setConfigError('')
+    setConfigDirty(true)
+  }
+
+  function isDefaultHiddenInput(input: { name: string; required: boolean; description?: string }) {
+    if (showAdvanced) return false
+    if (input.required) return false
+    const desc = (input.description || '').toLowerCase()
+    if (desc.includes('defaults to wallet')) return true
+    return input.name === 'owner' || input.name === 'payer'
   }
 
   function coerceValue(type: string, value: string | boolean) {
@@ -308,15 +342,18 @@ export default function PipelineBuilderPage() {
   }
 
   return (
-    <div className="flex h-full">
-      <div className="w-64 border-r border-white/10 bg-bg-elev p-4 space-y-4 overflow-y-auto">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold">MagicBlock Blocks</h2>
-          <Button variant="secondary" onClick={() => setShowTemplates(true)} className="text-xs">
-            Templates
-          </Button>
+    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
+      <div className="w-64 h-full border-r border-white/10 bg-bg-elev flex flex-col">
+        <div className="p-4 border-b border-white/10">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold">MagicBlock Blocks</h2>
+            <Button variant="secondary" onClick={() => setShowTemplates(true)} className="text-xs">
+              Templates
+            </Button>
+          </div>
         </div>
-        <div className="space-y-2">
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
           {blocks.map((block) => (
             <button
               key={block.id}
@@ -328,18 +365,21 @@ export default function PipelineBuilderPage() {
             </button>
           ))}
         </div>
-        <div className="pt-2 border-t border-white/10 space-y-2">
-          <Button onClick={() => setShowSaveModal(true)} className="w-full">
-            Save Flow
-          </Button>
-          <Button variant="secondary" onClick={handlePlan} className="w-full" disabled={planning}>
-            {planning ? 'Planning...' : 'Build Plan'}
-          </Button>
-          {planError && <div className="text-xs text-red-400">{planError}</div>}
+
+        <div className="p-4 border-t border-white/10 bg-bg-elev">
+          <div className="space-y-2">
+            <Button onClick={() => setShowSaveModal(true)} className="w-full">
+              Save Flow
+            </Button>
+            <Button variant="secondary" onClick={handlePlan} className="w-full" disabled={planning}>
+              {planning ? 'Planning...' : 'Build Plan'}
+            </Button>
+            {planError && <div className="text-xs text-red-400">{planError}</div>}
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 relative">
+      <div className="flex-1 relative h-full">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -349,6 +389,11 @@ export default function PipelineBuilderPage() {
           onNodeClick={(_, node) => setSelectedNode(node)}
           onPaneClick={() => setSelectedNode(null)}
           nodeTypes={nodeTypes}
+          connectionLineType={ConnectionLineType.SmoothStep}
+          defaultEdgeOptions={{
+            type: 'smoothstep',
+            style: { stroke: '#7c3aed', strokeWidth: 2 },
+          }}
           fitView
         >
           <Background gap={20} size={2} color="#ffffff" style={{ opacity: 0.05 }} />
@@ -378,58 +423,99 @@ export default function PipelineBuilderPage() {
             <div className="mt-4">
               {selectedNode.data.block?.inputs?.length > 0 && (
                 <div className="space-y-3">
-                  <div className="text-xs font-semibold text-white/70">Inputs</div>
-                  {selectedNode.data.block.inputs.map((input: any) => {
-                    const current = selectedNode.data.config?.[input.name]
-                    const isNumber = input.type === 'number'
-                    const isBoolean = input.type === 'boolean'
-                    return (
-                      <label key={input.name} className="block text-xs text-white/60">
-                        <div className="mb-1 flex items-center justify-between">
-                          <span>
-                            {input.name}
-                            {input.required ? ' *' : ''}
-                          </span>
-                          <span className="text-[10px] text-white/40">{input.type}</span>
-                        </div>
-                        {isBoolean ? (
-                          <input
-                            type="checkbox"
-                            checked={Boolean(current)}
-                            onChange={(e) => {
-                              const next = { ...(selectedNode.data.config || {}) }
-                              next[input.name] = coerceValue(input.type, e.target.checked)
-                              updateSelectedConfigObject(next)
-                            }}
-                          />
-                        ) : (
-                          <input
-                            type={isNumber ? 'number' : 'text'}
-                            value={current ?? ''}
-                            onChange={(e) => {
-                              const next = { ...(selectedNode.data.config || {}) }
-                              next[input.name] = coerceValue(input.type, e.target.value)
-                              updateSelectedConfigObject(next)
-                            }}
-                            className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-white"
-                            placeholder={input.description || ''}
-                          />
-                        )}
-                      </label>
-                    )
-                  })}
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-semibold text-white/70">Inputs</div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAdvanced((s) => !s)}
+                      className="text-[11px] text-white/50 hover:text-white/80 transition"
+                    >
+                      {showAdvanced ? 'Hide advanced' : 'Advanced options'}
+                    </button>
+                  </div>
+                  {!showAdvanced && (
+                    <div className="text-[11px] text-white/40">
+                      Defaults (like owner/payer) are hidden until you open advanced options.
+                    </div>
+                  )}
+                  {selectedNode.data.block.inputs
+                    .filter((input: any) => !isDefaultHiddenInput(input))
+                    .map((input: any) => {
+                      const current = draftConfig?.[input.name]
+                      const isNumber = input.type === 'number'
+                      const isBoolean = input.type === 'boolean'
+                      return (
+                        <label key={input.name} className="block text-xs text-white/60">
+                          <div className="mb-1 flex items-center justify-between">
+                            <span>
+                              {input.name}
+                              {input.required ? ' *' : ''}
+                            </span>
+                            <span className="text-[10px] text-white/40">{input.type}</span>
+                          </div>
+                          {isBoolean ? (
+                            <input
+                              type="checkbox"
+                              checked={Boolean(current)}
+                              onChange={(e) => {
+                                const next = { ...(draftConfig || {}) }
+                                next[input.name] = coerceValue(input.type, e.target.checked)
+                                updateDraftConfig(next)
+                              }}
+                            />
+                          ) : (
+                            <input
+                              type={isNumber ? 'number' : 'text'}
+                              value={current ?? ''}
+                              onChange={(e) => {
+                                const next = { ...(draftConfig || {}) }
+                                next[input.name] = coerceValue(input.type, e.target.value)
+                                updateDraftConfig(next)
+                              }}
+                              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-white"
+                              placeholder={input.description || ''}
+                            />
+                          )}
+                        </label>
+                      )
+                    })}
                 </div>
               )}
-              <label className="text-xs font-semibold text-white/70 mb-2 block">
-                Config (JSON)
-              </label>
-              <textarea
-                className="w-full h-48 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white font-mono"
-                value={configText}
-                onChange={(e) => setConfigText(e.target.value)}
-                onBlur={(e) => updateSelectedConfig(e.target.value)}
-              />
-              {configError && <div className="text-[11px] text-red-400 mt-2">{configError}</div>}
+              {showAdvanced && (
+                <>
+                  <label className="text-xs font-semibold text-white/70 mb-2 block">
+                    Config (JSON)
+                  </label>
+                  <textarea
+                    className="w-full h-48 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white font-mono"
+                    value={configText}
+                    onChange={(e) => {
+                      setConfigText(e.target.value)
+                      setConfigDirty(true)
+                    }}
+                    onBlur={(e) => updateSelectedConfig(e.target.value)}
+                  />
+                  {configError && (
+                    <div className="text-[11px] text-red-400 mt-2">{configError}</div>
+                  )}
+                </>
+              )}
+              <div className="mt-4">
+                <Button
+                  className="w-full"
+                  disabled={!configDirty || Boolean(configError)}
+                  onClick={() => {
+                    try {
+                      const parsed = configText.trim() ? JSON.parse(configText) : {}
+                      updateSelectedConfigObject(parsed)
+                    } catch {
+                      setConfigError('Invalid JSON')
+                    }
+                  }}
+                >
+                  Save Config
+                </Button>
+              </div>
             </div>
           </div>
         )}

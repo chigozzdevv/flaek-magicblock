@@ -5,7 +5,11 @@ import { apiGetCredits, apiGetTenant, apiUpdateTenantName, apiMe } from '@/lib/a
 import { Modal } from '@/components/ui/modal'
 import { clearToken } from '@/lib/auth'
 
-export function Topbar() {
+type TopbarProps = {
+  sidebarCollapsed?: boolean
+}
+
+export function Topbar({ sidebarCollapsed = false }: TopbarProps) {
   const [credits, setCredits] = useState(0)
   const [org, setOrg] = useState<string>('')
   const [open, setOpen] = useState(false)
@@ -57,7 +61,11 @@ export function Topbar() {
   }
 
   return (
-    <div className="fixed top-0 left-64 right-0 z-30 h-16 border-b border-white/10 bg-bg-base flex items-center justify-between px-6">
+    <div
+      className={`fixed top-0 right-0 z-30 h-16 border-b border-white/10 bg-bg-base flex items-center justify-between px-6 transition-[left] duration-200 ${
+        sidebarCollapsed ? 'left-16' : 'left-64'
+      }`}
+    >
       <div className="flex items-center gap-3" />
       <div className="flex items-center gap-4">
         <button

@@ -33,7 +33,7 @@ export function DashboardLayout({ children, currentPath }: DashboardLayoutProps)
           collapsed ? 'ml-16' : 'ml-64'
         }`}
       >
-        <Topbar />
+        <Topbar sidebarCollapsed={collapsed} />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
